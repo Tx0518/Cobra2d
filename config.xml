@@ -1,0 +1,112 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<config>
+	<Resources path="http://static-kstw.igg.com/fake/" game="games/" mods="mod/" asset="asset/" image="images/" res="res/" static_dir="static/" effects="effect/" sounds="sound/" >
+		<resource name="Resource"	 path="Resource.swf" type="Mc" version="0714"/>
+		<resource name="Common"	 	 path="common_ui.swf" type="Mc" version="0714"/>
+		<resource name="Chat" 		 path="chat_asset.swf" type="Mc" version="0714"/>
+		<resource name="Main" 	 	 path="main_asset.swf" type="Mc" version="0714"/>
+		<resource name="Main2" 	 	 path="main_asset_2.swf" type="Mc" version="0714"/>
+		<resource name="Hero" 	 	 path="heromodule_asset.swf" type="Mc" version="0714"/>
+		<resource name= "Login"	 	 path="login_asset.swf" type="Mc" version="0714"/>
+	</Resources>
+	<Module>
+		<resource name="MODULE_SCIENCE" 	path="ScienceModule.swf" 	version="0714" type="Mod"/>
+		<resource name="MODULE_UNION" 		path="UnionModule.swf"	 	version="0714" type="Mod"/>
+		<resource name="MODULE_MONARCH" 	path="MonarchModule.swf" 	version="0714" type="Mod"/>
+		<resource name="MODULE_MAIL" 		path="MailModule.swf" 	 	version="0714" type="Mod"/>
+		<resource name="MODULE_HERO" 		path="HeroModule.swf"	 	version="0714" type="Mod"/>
+		<resource name="MODULE_BATTLE" 		path="BattleModule.swf"	 	version="0714" type="Mod"/>
+		<resource name="MODULE_PACKET" 		path="PacketModule.swf"	 	version="0714" type="Mod"/>
+		<resource name="MODULE_MALL" 		path="MallModule.swf"	 	version="0714" type="Mod"/>
+		<resource name="MODULE_WMAP" 		path="WorldMapModule.swf"	version="0714" type="Mod"/>
+		<resource name="MODULE_TRADE" 		path="TradeModule.swf"	 	version="0714" type="Mod"/>
+		<resource name="MODULE_TROOPS" 		path="TroopsModule.swf"	 	version="0714" type="Mod"/>
+		<resource name="MODULE_MARKET" 		path="MarketModule.swf"	 	version="0714" type="Mod"/>
+		<resource name="MODULE_GUIDANCE" 	path="NewHandGuidance.swf"	version="0714" type="Mod"/>
+		<resource name="MODULE_WISH" 		path="WishModule.swf"	 	version="0714" type="Mod"/>
+		<resource name="MODULE_CARTTON" 	path="CartoonModule.swf"	version="0714" type="Mod"/>
+		<resource name="MODULE_TreviFountain" 	path="TreviFountainModule.swf"	version="0714" type="Mod"/>
+		<resource name="MODULE_RanKing" 	path="RankingMoudule.swf"	version="0714" type="Mod"/>
+		<resource name="MODULE_TASK" 		path="TaskModule.swf"		version="0714" type="Mod"/>
+		<resource name="MODULE_ASSIST" 		path="GameAssistModule.swf"	version="0714" type="Mod"/>
+		<resource name="MODULE_ONEFIGHT" 	path="OneFightModule.swf"	version="0714" type="Mod"/>
+		<resource name="MODULE_LUCKYWHEEL" 	path="LuckyWheelModule.swf"	version="0714" type="Mod"/>
+		<resource name="MODULE_LEAGUE" 		path="LeagueModule.swf"		version="0714" type="Mod"/>
+	</Module>
+	<Static>
+		<Dir name="science" path="science/" version=""/>
+		<Dir name="battle" path="battle/" version=""/>
+		<Dir name="build" path="build/" version=""/>
+		<Dir name="hero" path="hero/" version=""/>
+		<Dir name="heroskill" path="heroskill/" version=""/>
+		<Dir name="map" path="map/" version=""/>
+		<Dir name="props" path="props/" version=""/>
+		<Dir name="resource" path="resource/" version=""/>
+		<Dir name="sdrbuff" path="sdrbuff/" version="" />
+		<Dir name="sdrequip" path="sdrequip/" version=""/>
+		<Dir name="union" path="union/" version=""/>
+		<Dir name="cartoons" path="cartoons/" version=""/>
+		<Dir name="font" path="font/" version=""/>
+		<Dir name="random" path="random/" version=""/>
+		<Dir name="npc" path="npc/" version=""/>	
+		<Dir name="button" path="button/" version=""/>
+		<Dir name="nodify" path="nodify/" version=""/>
+		<Dir name="avatar" path="avatar/" version=""/>
+		<Dir name="new_features" path="new_features/" version=""/>
+	</Static>
+	<GameEffectVersion>1</GameEffectVersion>
+	<EffectVersion>0</EffectVersion>
+	<Version>0714</Version>
+	<PreloadVersion>0</PreloadVersion>
+	<GameWidth>760</GameWidth>
+	<GameHeight>600</GameHeight>
+	<HD></HD>
+	<Security>1</Security>
+	<Ip>113.196.94.59</Ip> 
+	<Port>5999</Port>
+	<Url>https://apps.facebook.com/knights_tw</Url>
+	<Debug>1</Debug>
+	<Note>
+		<Msg 	name="loadLoginServer" src="連接登陸伺服器，請稍後……"/>
+		<Msg 	name="loadGameServer" src="連接遊戲伺服器，請稍後……"/>
+		<Msg 	name="enterGameServer" src="初始化遊戲場景，請稍後……"/>
+		<Msg 	name="loadRes" src="正在加載遊戲素材，請稍後……"/>
+		<Msg 	name="loadResError" src="加載遊戲資源素材失敗……請重新啟動遊戲"/>
+		<Msg 	name="loadResCompleted" src="素材加載完成"/>
+		<Msg   name="InitGameData" src="遊戲初始化……"/>
+	</Note>
+	<Tips>
+		<Msg src="升級兵裝可以有效的提高部隊的戰鬥力"/>
+		<Msg src="提高武將星級，將可以提高武將的成長率"/>
+		<Msg src="勢力聲望提升，可以提高勢力士兵的屬性"/>
+		<Msg src="使用建造卡可以增加3個建築隊列"/>
+		<Msg src="武將適性與兵裝搭配，可以獲得更好的戰場效果"/>
+		<Msg src="使用武將重置卡，可以將武將的四維重置"/>
+		<Msg src="使用強化符強化英雄，可以提升武將的成長率"/>
+		<Msg src="武將到達20級後要進階後才可以繼續提升武將等級"/>
+		<Msg src="想帶更多的士兵？提升軍銜吧"/>
+		<Msg src="星級越高，技能的發動概率越高"/>
+		<Msg src="英雄無法升級了？提升英魂靈龕的等級和英雄的階級吧"/>
+		<Msg src="敵人太強？試著強化英雄的裝備吧"/>
+		<Msg src="民衷不足？多點點突發事件吧"/>
+		<Msg src="政治策略可以幫助您解決許多內政上的小問題"/>
+		<Msg src="升級建築、叛軍來襲可加速君主升級"/>
+		<Msg src="君主屬性及時加點可大大提升武將實力"/>
+		<Msg src="英雄受傷後請到療傷館及時治療"/>
+		<Msg src="城池等級到達3級、8級、12級時即開啟時代變遷"/>
+		<Msg src="在神殿中供奉可以獲得神力"/>
+		<Msg src="被掠奪後繁榮度會臨時性下降，而且人口也會下降"/>
+		<Msg src="繁榮度下降後會緩慢回升"/>
+		<Msg src="建造資源設施需要佔用一定量的空閒人口"/>
+		<Msg src="每個時代會提供2種類型（軍事、內政）的奇跡建築可供建造"/>
+		<Msg src="武器和護甲之間的相克對戰爭的影響很大"/>
+		<Msg src="君主的屬性數值越高，對武將的屬性加成也越高"/>
+		<Msg src="每個時代都有對應的特色科技，時代越高科技越強"/>
+		<Msg src="當武將殺氣值到100時，武將將釋放EX技"/>
+		<Msg src="士氣值越高，對部隊的攻防加成越高"/>
+		<Msg src="攻城武器對防禦建築的有額外的傷害加成"/>
+		<Msg src="奇跡建築作用各不相同，您的選擇決定了您的發展路線"/>
+		<Msg src="越高難度的副本掉落的武將裝備品質越好"/>
+	</Tips>
+	<DisplayVersion>1.0.1.6Beta</DisplayVersion>
+</config>
