@@ -3,8 +3,6 @@
 #include "CObserver.h"
 #include "CIntent.h"
 #include "CService.h"
-#include "CViewPort.h"
-
 CActivity::CActivity( void )
 	:m_bisActive(false),
 	m_bHasObserver(false),
