@@ -45,10 +45,22 @@ public: virtual const varType& get##funName(void) const { return varName; }
 #endif
 
 
-#define COBRA_ASSERT(cond)    assert(cond)
+#define COBRA_ASSERT(cond,msg)    assert(cond)
 
 /* Define NULL pointer value */
 #ifndef NULL
 #define NULL    0
 #endif
+
+
+#define LOG 
+#define  ENTERFUNC()    LOG("enter func %s in %s",__FUNCTION__, __FILE__)
+#define  LVFUNC()       LOG("leave func %s in %s",__FUNCTION__, __FILE__)
+
+
+//platform
+//////////////////////////////////////////////////////////////////////////
+//#define  ANDROID
+//#define  IOS
+//////////////////////////////////////////////////////////////////////////
 #endif
