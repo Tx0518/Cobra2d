@@ -7,9 +7,11 @@
 
 #include "SimpleAudioEngine.h"
 
+#include "CGui.h"
 class HelloWorld : public cocos2d::CCLayer
 {
 public:
+	~HelloWorld();
     // Here's a difference. Method 'init' in cocos2d-x returns bool, instead of returning 'id' in cocos2d-iphone
     virtual bool init();  
 
@@ -21,6 +23,14 @@ public:
 
     // implement the "static node()" method manually
     CREATE_FUNC(HelloWorld);
+
+	//////////////////////////////////////////////////////////////////////////
+	virtual void registerWithTouchDispatcher(void);
+	//////////////////////////////////////////////////////////////////////////
+	
+	void draw();
+private:
+	CGui* m_pGUI;
 };
 
 #endif  // __HELLOWORLD_SCENE_H__

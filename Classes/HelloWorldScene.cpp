@@ -1,7 +1,8 @@
 #include "HelloWorldScene.h"
 #include "CApplication.h"
 #include <map>
-
+#include "CPanel.h"
+#include "CGraphic.h"
 using namespace cocos2d;
 
 CCScene* HelloWorld::scene()
@@ -25,18 +26,44 @@ CCScene* HelloWorld::scene()
     return scene;
 }
 
+HelloWorld::~HelloWorld()
+{
+	//remove it 
+	CCTouchDispatcher* pDispatcher = CCDirector::sharedDirector()->getTouchDispatcher();
+	pDispatcher->removeDelegate(m_pGUI);
+	//release
+	m_pGUI->release();
+}
 // on "init" you need to initialize your instance
 bool HelloWorld::init()
 {
     bool bRet = false;
     do 
     {
+		
         //////////////////////////////////////////////////////////////////////////
         // super init first
         //////////////////////////////////////////////////////////////////////////
+		//init GUI system
+		CCSize size = CCDirector::sharedDirector()->getWinSize();
+		m_pGUI = new CGui(size.width,size.height);
+		m_pGUI->setRect(CCRectMake(200,100,size.width/2,size.height/2));
+		m_pGUI->setBkColor(ccc4(255,0,0,255));
+		//add panel to gui
+		CPanel* pPanel = new CPanel();
+		pPanel->setBkColor(ccc4(0,255,0,255));
+		pPanel->setRect(CCRectMake(100,100,100,50));
+		m_pGUI->add(pPanel);
+
+		//add panel2 to panel1
+		CPanel* pPanel2 = new CPanel();
+		pPanel2->setBkColor(ccc4(0,0,255,128));
+		pPanel2->setRect(CCRectMake(25,25,180,10));
+		pPanel->add(pPanel2);
+
 
         CC_BREAK_IF(! CCLayer::init());
-
+		this->setTouchEnabled(true);
         //////////////////////////////////////////////////////////////////////////
         // add your codes below...
         //////////////////////////////////////////////////////////////////////////
@@ -62,34 +89,11 @@ bool HelloWorld::init()
         // Add the menu to HelloWorld layer as a child layer.
         this->addChild(pMenu, 1);
 
-        // 2. Add a label shows "Hello World".
-
-        // Create a label and initialize with string "Hello World".
-        CCLabelTTF* pLabel = CCLabelTTF::create("Hello World", "Arial", 24);
-        CC_BREAK_IF(! pLabel);
-
-        // Get window size and place the label upper. 
-        CCSize size = CCDirector::sharedDirector()->getWinSize();
-        pLabel->setPosition(ccp(size.width / 2, size.height - 50));
-
-        // Add the label to HelloWorld layer as a child layer.
-        this->addChild(pLabel, 1);
-
-        // 3. Add add a splash screen, show the cocos2d splash image.
-        CCSprite* pSprite = CCSprite::create("HelloWorld.png");
-        CC_BREAK_IF(! pSprite);
-
-        // Place the sprite on the center of the screen
-        pSprite->setPosition(ccp(size.width/2, size.height/2));
-
-        // Add the sprite to HelloWorld layer as a child layer.
-        this->addChild(pSprite, 0);
 
         bRet = true;
 
 		CApplication::getInstance()->onCreate();
 
-		
     } while (0);
     return bRet;
 }
@@ -100,3 +104,20 @@ void HelloWorld::menuCloseCallback(CCObject* pSender)
     CCDirector::sharedDirector()->end();
 }
 
+
+void HelloWorld::registerWithTouchDispatcher(void)
+{
+	CCTouchDispatcher* pDispatcher = CCDirector::sharedDirector()->getTouchDispatcher();
+	pDispatcher->addTargetedDelegate(m_pGUI, INT_MIN + 1, false);
+}
+
+void HelloWorld::draw()
+{
+	//TODO check me 
+	//for the reason that
+	//z-order < 0 draw first
+	//then function HelloWorld::draw will be invoked after that
+	//then z-order > 0 draw after if there is a full screen pic 
+	//it may hidden the GUI system
+	m_pGUI->draw();
+}
