@@ -149,8 +149,6 @@ void CBaseWidget::logic(float dt)
  {
 	 CRectange rc = this->getRect();
 	 rc.origin = PointZero;
-	 rc.size.width  *= m_scale;
-	 rc.size.height *= m_scale; 
 	 return rc;
  }
 
