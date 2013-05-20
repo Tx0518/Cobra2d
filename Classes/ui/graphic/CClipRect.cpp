@@ -28,7 +28,7 @@ CClipRect::CClipRect(float x, float y, float width, float height, float xOffset,
 	m_fYoffset = yOffset;
 }
 
-const CClipRect& CClipRect::operator=(const CCRect& other)
+const CClipRect& CClipRect::operator=(const CRectange& other)
 {
 	origin = other.origin;
 	size   = other.size;

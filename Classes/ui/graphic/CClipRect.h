@@ -3,9 +3,8 @@
 /************************************************************************/
 /* for clip                                                                     */
 /************************************************************************/
-#include "cocos2d.h"
-USING_NS_CC;
-class CClipRect:public CCRect
+#include "CGeometry.h"
+class CClipRect:public CRectange
 {
 public:
 	CClipRect(void);
@@ -16,7 +15,7 @@ public:
 		float xOffset, 
 		float yOffset);
 	~CClipRect(void);
-	const CClipRect& operator=(const CCRect& other);
+	const CClipRect& operator=(const CRectange& other);
 	float m_fXoffset;
 	float m_fYoffset;
 };

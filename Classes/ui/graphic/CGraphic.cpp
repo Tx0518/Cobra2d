@@ -1,9 +1,15 @@
 #include "CGraphic.h"
 
 
+CGraphic::CGraphic(void)
+{
+	m_pShader = CCShaderCache::sharedShaderCache()->programForKey(kCCShader_PositionTextureColor);
+	CC_SAFE_RETAIN(m_pShader);
+}
 
 CGraphic::~CGraphic(void)
 {
+	CC_SAFE_RELEASE_NULL(m_pShader);
 }
 
 void CGraphic::setTargetPlane(int iWidth,int iHeight)
@@ -15,7 +21,7 @@ void CGraphic::setTargetPlane(int iWidth,int iHeight)
 void CGraphic::beginDraw()
 {
 	glEnable(GL_SCISSOR_TEST);
-	pushClipArea(CCRectMake(0, 0, m_Width, m_Height));
+	pushClipArea(CreateCRect(0, 0, m_Width, m_Height));
 }
 void CGraphic::endDraw()
 {
@@ -23,7 +29,7 @@ void CGraphic::endDraw()
 	popClipArea();
 }
 
-bool CGraphic::pushClipArea(CCRect area)
+bool CGraphic::pushClipArea(CRectange area)
 {
 	bool result =  false;
 	//////////////////////////////////////////////////////////////////////////
@@ -68,7 +74,7 @@ void CGraphic::reset(void)
 }
 
 
-bool CGraphic::pushClipAreaInner(CCRect area)
+bool CGraphic::pushClipAreaInner(CRectange area)
 {
 	if (area.size.width < 0 || area.size.height < 0)
 	{
@@ -131,7 +137,7 @@ bool CGraphic::pushClipAreaInner(CCRect area)
 }
 
 //////////////////////////////////////////////////////////////////////////
- void CGraphic::setColor(cocos2d::ccColor4B& color)
+ void CGraphic::setColor(CColor4B& color)
  {
 	 m_Color = color;
  }
@@ -249,7 +255,7 @@ void CGraphic::drawLine(int x1, int y1, int x2, int y2)
 }
 
 
-void CGraphic::drawRectangle(const CCRect& rectangle)
+void CGraphic::drawRectangle(const CRectange& rectangle)
 {
 	if (!m_ClipStack.empty())
 	{
@@ -268,7 +274,7 @@ void CGraphic::drawRectangle(const CCRect& rectangle)
 	}
 }
 
-void CGraphic::fillRectangle(const CCRect& rectangle)
+void CGraphic::fillRectangle(const CRectange& rectangle)
 {
 	if (!m_ClipStack.empty())
 	{
@@ -288,4 +294,135 @@ void CGraphic::fillRectangle(const CCRect& rectangle)
 		ccDrawSolidRect(pt,ptDemesion,color);
 	}
 }
+
+
+#if 0//this is for rotation
+//do not implement all the logic
+void CGAffineToGL(const CCAffineTransform *t, GLfloat *m)
+{
+	// | m[0] m[4] m[8]  m[12] |     | m11 m21 m31 m41 |     | a c 0 tx |
+	// | m[1] m[5] m[9]  m[13] |     | m12 m22 m32 m42 |     | b d 0 ty |
+	// | m[2] m[6] m[10] m[14] | <=> | m13 m23 m33 m43 | <=> | 0 0 1  0 |
+	// | m[3] m[7] m[11] m[15] |     | m14 m24 m34 m44 |     | 0 0 0  1 |
+
+	m[2] = m[3] = m[6] = m[7] = m[8] = m[9] = m[11] = m[14] = 0.0f;
+	m[10] = m[15] = 1.0f;
+	m[0] = t->a; m[4] = t->c; m[12] = t->tx;
+	m[1] = t->b; m[5] = t->d; m[13] = t->ty;
+}
+ void CGraphic::drawImage2(const CCTexture2D* image,int srcX,int srcY,int dstX,int dstY,int width,int height)
+ {
+	 kmGLPushMatrix();
+
+	 float cx = 1, sx = 0, cy = 1, sy = 0,m_fRotationX = 60,m_fRotationY = 60;
+	 if (m_fRotationX || m_fRotationY)
+	 {
+		 float radiansX = -CC_DEGREES_TO_RADIANS(m_fRotationX);
+		 float radiansY = -CC_DEGREES_TO_RADIANS(m_fRotationY);
+		 cx = cosf(radiansX);
+		 sx = sinf(radiansX);
+		 cy = cosf(radiansY);
+		 sy = sinf(radiansY);
+	 }
+	 float m_fScaleY = 1.0f;
+	 float m_fScaleX = 1.0f;
+	 // Build Transform Matrix
+	 // Adjusted transform calculation for rotational skew
+	 CCAffineTransform m_sTransform;     ///< transform
+
+	 float x = dstX;
+	 float y = m_Height - dstY;
+
+	 CCPoint ptAnchor(0,1); 
+	 CCPoint m_obAnchorPointInPoints;
+	 m_obAnchorPointInPoints.x = ptAnchor.x * width;
+	 m_obAnchorPointInPoints.y = ptAnchor.y * height;
+	
+
+	 x += cy * -m_obAnchorPointInPoints.x * m_fScaleX + -sx * -m_obAnchorPointInPoints.y * m_fScaleY;
+	 y += sy * -m_obAnchorPointInPoints.x * m_fScaleX +  cx * -m_obAnchorPointInPoints.y * m_fScaleY;
+
+
+	 m_sTransform = CCAffineTransformMake( cy * m_fScaleX,  sy * m_fScaleX,
+		-sx * m_fScaleY, cx * m_fScaleY,x,y);
+
+
+	 kmMat4 transfrom4x4;
+
+	 CGAffineToGL(&m_sTransform, transfrom4x4.mat);
+
+	 // Update Z vertex manually
+	 transfrom4x4.mat[14] = 0.0f;
+
+	 kmGLMultMatrix( &transfrom4x4 );
+
+
+
+	 ccV3F_C4B_T2F_Quad sQuad = {0};
+	 //////////////////////////////////////////////////////////////////////////
+	 ccColor4B color4 = { 255, 255, 255,255 };
+
+	 sQuad.bl.colors = color4;
+	 sQuad.br.colors = color4;
+	 sQuad.tl.colors = color4;
+	 sQuad.tr.colors = color4;
+	 //////////////////////////////////////////////////////////////////////////
+ 	 float x1 = 0 ;
+ 	 float y1 = 0 ;
+ 	 float x2 = width;
+ 	 float y2 = height;
+ 
+ 	 // Don't update Z.
+ 	 sQuad.bl.vertices = vertex3(x1, y1, 0);
+ 	 sQuad.br.vertices = vertex3(x2, y1, 0);
+ 	 sQuad.tl.vertices = vertex3(x1, y2, 0);
+ 	 sQuad.tr.vertices = vertex3(x2, y2, 0);
+
+	 //////////////////////////////////////////////////////////////////////////
+	 //update 
+	 float atlasWidth = (float)((CCTexture2D*)image)->getPixelsWide();
+	 float atlasHeight = (float)((CCTexture2D*)image)->getPixelsHigh();
+	 float left, right, top, bottom;
+	 left	= srcX/atlasWidth;
+	 right	= (((CCTexture2D*)image)->getContentSize().width)/atlasWidth;
+	 top		= srcY/atlasHeight;
+	 bottom	= (((CCTexture2D*)image)->getContentSize().height)/atlasHeight;
+
+
+	 sQuad.bl.texCoords.u = left;
+	 sQuad.bl.texCoords.v = bottom;
+	 sQuad.br.texCoords.u = right;
+	 sQuad.br.texCoords.v = bottom;
+	 sQuad.tl.texCoords.u = left;
+	 sQuad.tl.texCoords.v = top;
+	 sQuad.tr.texCoords.u = right;
+	 sQuad.tr.texCoords.v = top;
+	 //////////////////////////////////////////////////////////////////////////
+
+
+	 ccGLEnableVertexAttribs( kCCVertexAttribFlag_PosColorTex );
+
+#define kQuadSize sizeof(sQuad.bl)
+	 m_pShader->use();
+	 m_pShader->setUniformsForBuiltins();
+	 ccGLBindTexture2D(((CCTexture2D*)image)->getName());
+	 ccGLEnableVertexAttribs( kCCVertexAttribFlag_PosColorTex );
+	 long offset = (long)&sQuad;
+
+	 // vertex
+	 int diff = offsetof( ccV3F_C4B_T2F, vertices);
+	 glVertexAttribPointer(kCCVertexAttrib_Position, 3, GL_FLOAT, GL_FALSE, kQuadSize, (void*) (offset + diff));
+
+	 // texCoods
+	 diff = offsetof( ccV3F_C4B_T2F, texCoords);
+	 glVertexAttribPointer(kCCVertexAttrib_TexCoords, 2, GL_FLOAT, GL_FALSE, kQuadSize, (void*)(offset + diff));
+
+	 // color
+	 diff = offsetof( ccV3F_C4B_T2F, colors);
+	 glVertexAttribPointer(kCCVertexAttrib_Color, 4, GL_UNSIGNED_BYTE, GL_TRUE, kQuadSize, (void*)(offset + diff));
+	 glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+	 kmGLPopMatrix();
+ }
+#endif
 //////////////////////////////////////////////////////////////////////////
