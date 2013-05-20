@@ -52,8 +52,8 @@ public: virtual const varType& get##funName(void) const { return varName; }
 #define NULL    0
 #endif
 
-
-#define LOG 
+#include "cocos2d.h"
+#define LOG		cocos2d::CCLog
 #define  ENTERFUNC()    LOG("enter func %s in %s",__FUNCTION__, __FILE__)
 #define  LVFUNC()       LOG("leave func %s in %s",__FUNCTION__, __FILE__)
 

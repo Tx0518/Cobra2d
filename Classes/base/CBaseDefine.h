@@ -12,5 +12,4 @@ typedef enum
 	COBRA_BUNDLE,
 	COBRA_COMMAND,
 } cCobraObjType;
-
 #endif //_CBASEDEFINE_H_
