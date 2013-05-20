@@ -1,10 +1,10 @@
 #include "CGui.h"
-#include "CGraphic.h"
-
 CGui::CGui(int width,int height)
 {
 	m_pGraphic = CGraphic::instance();
 	m_pGraphic->setTargetPlane(width,height);
+	//////////////////////////////////////////////////////////////////////////
+	m_pCommandHandlerMgr =  CCommandHandlerMgr::instance();
 }
 
 
@@ -18,8 +18,12 @@ CGui::~CGui(void)
 bool CGui::ccTouchBegan(CCTouch *pTouch, CCEvent *pEvent)
 {
 	bool ret = false;
-	CCPoint touchLocation = pTouch->getLocationInView();
-	if (this->getRect().containsPoint(touchLocation))
+	CCPoint ptCococs2dx = pTouch->getLocationInView();
+	CPoint  touchLocation;
+	touchLocation.x = ptCococs2dx.x;
+	touchLocation.y = ptCococs2dx.y;
+	touchLocation = this->converToNodeSpace(touchLocation);
+	if (this->getChildRect().containsPoint(touchLocation))
 	{
 		CWidgetEvent event(this,CWidgetEvent::W_EVENT_PEN_DOWN);
 		event.setPt(touchLocation);
@@ -31,7 +35,10 @@ bool CGui::ccTouchBegan(CCTouch *pTouch, CCEvent *pEvent)
 
 void CGui::ccTouchMoved(CCTouch *pTouch, CCEvent *pEvent)
 {
-	CCPoint touchLocation = pTouch->getLocationInView();
+	CCPoint ptCococs2dx = pTouch->getLocationInView();
+	CPoint  touchLocation;
+	touchLocation.x = ptCococs2dx.x;
+	touchLocation.y = ptCococs2dx.y;
 	CWidgetEvent event(this,CWidgetEvent::W_EVENT_PEN_DOWN);
 	event.setPt(touchLocation);
 	this->DispatchWidgetEvent(event);
@@ -39,7 +46,11 @@ void CGui::ccTouchMoved(CCTouch *pTouch, CCEvent *pEvent)
 
 void CGui::ccTouchEnded(CCTouch *pTouch, CCEvent *pEvent)
 {
-	CCPoint touchLocation = pTouch->getLocationInView();
+	CCPoint ptCococs2dx = pTouch->getLocationInView();
+	CPoint  touchLocation;
+	touchLocation.x = ptCococs2dx.x;
+	touchLocation.y = ptCococs2dx.y;
+	touchLocation = this->converToNodeSpace(touchLocation);
 	CWidgetEvent event(this,CWidgetEvent::W_EVENT_PEN_UP);
 	event.setPt(touchLocation);
 	this->DispatchWidgetEvent(event);
@@ -53,55 +64,39 @@ void CGui::ccTouchCancelled(CCTouch *pTouch, CCEvent *pEvent)
 void CGui::DispatchWidgetEvent(CWidgetEvent& event)
 {
 	//TODO dispatch event to targets
-	CBaseWidget* pWidget = NULL;
-	WidgetListIter iter = m_pList->begin();
-	while(iter != m_pList->end())
+	switch (event.getType())
 	{
-		pWidget = *iter;
-		if (pWidget->isVisble() && pWidget->isEnable())
+	case CWidgetEvent::W_EVENT_PEN_DOWN:
 		{
-			switch (event.getType())
-			{
-			case CWidgetEvent::W_EVENT_PEN_DOWN:
-				{
-					this->handlePenDown(event);
-					break;
-				}
-			case CWidgetEvent::W_EVENT_PEN_UP:
-				{
-					this->handlePenUp(event);
-					break;
-				}
-			case CWidgetEvent::W_EVENT_PEN_MOVE_IN:
-				{
-					this->handlePenMoveIn(event);
-					break;
-				}
-			case CWidgetEvent::W_EVENT_PEN_MOVE:
-				{
-					this->handlePenMove(event);
-					break;
-				}
-			case CWidgetEvent::W_EVENT_PEN_DOWN_OUT:
-				{
-					this->handlePenMoveOut(event);
-					break;
-				}
-			default:
-				{
-					LOG("unknown event type encountered [%d]",event.getType());
-					break;
-				}
-			}
-		}
-
-		if (event.isHandled())
-		{
+			this->handlePenDown(event);
 			break;
 		}
-		iter++;
+	case CWidgetEvent::W_EVENT_PEN_UP:
+		{
+			this->handlePenUp(event);
+			break;
+		}
+	case CWidgetEvent::W_EVENT_PEN_MOVE_IN:
+		{
+			this->handlePenMoveIn(event);
+			break;
+		}
+	case CWidgetEvent::W_EVENT_PEN_MOVE:
+		{
+			this->handlePenMove(event);
+			break;
+		}
+	case CWidgetEvent::W_EVENT_PEN_DOWN_OUT:
+		{
+			this->handlePenMoveOut(event);
+			break;
+		}
+	default:
+		{
+			LOG("unknown event type encountered [%d]",event.getType());
+			break;
+		}
 	}
-
 }
 //////////////////////////////////////////////////////////////////////////
 void CGui::draw(void)
@@ -116,3 +111,9 @@ void CGui::draw(void)
 	m_pGraphic->popClipArea();	
 	m_pGraphic->endDraw();
 }
+
+
+ void CGui::logic(float dt)
+ {
+	m_pCommandHandlerMgr->handleCmd();
+ }

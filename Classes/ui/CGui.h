@@ -1,15 +1,14 @@
 #ifndef __C_GUI_H__
 #define __C_GUI_H__
-#include "CBaseContainer.h"
-#include "IUIEventDispatcher.h"
-#include "cocos2d.h"
-USING_NS_CC;
 /************************************************************************/
 /* this class is used to port with cocos2d-x
 convert touch to ui event
 */
 /************************************************************************/
-class CGraphic;
+#include "CBaseContainer.h"
+#include "IUIEventDispatcher.h"
+#include "CGraphic.h"
+#include "CommandHandlerMgr.h"
 class CGui:public CBaseContainer,public IUIEventDispatcher,public CCTouchDelegate,public CCObject
 {
 public:
@@ -26,7 +25,10 @@ public:
 	 void DispatchWidgetEvent(CWidgetEvent& event); 
 	 //////////////////////////////////////////////////////////////////////////
 	 void draw(void);
+	 //////////////////////////////////////////////////////////////////////////
+	 void logic(float dt);
 private:
 	CGraphic* m_pGraphic;
+	CCommandHandlerMgr* m_pCommandHandlerMgr;
 };
 #endif //__C_GUI_H__
