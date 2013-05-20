@@ -4,9 +4,7 @@
 /* this class is used to define the interface of ui
 */
 /************************************************************************/
-#include "cocos2d.h"
 #include "CWidgetEvent.h"
-USING_NS_CC;
 class IHandleUIEvent
 {
 public:

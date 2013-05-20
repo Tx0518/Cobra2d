@@ -1,3 +1,5 @@
+#include "CGeometry.h"
+#include "CBaseWidget.h"
 #include "CBaseContainer.h"
 #include "CGraphic.h"
 
@@ -47,12 +49,13 @@ void CBaseContainer::draw(CGraphic* pGraphic)
 void CBaseContainer::add(CBaseWidget* pWidget)
 {
 	m_pList->push_back(pWidget);
-	m_pList->sort();
+	CCmpBaseWidget cmp;
+	m_pList->sort(cmp);
 }
 
 void CBaseContainer::add(CBaseWidget* pWidget,int x,int y)
 {
-	CCRect rc = pWidget->getRect();
+	CRectange rc = pWidget->getRect();
 	rc.origin.x = x;
 	rc.origin.y = y;
 	pWidget->setRect(rc);
@@ -90,14 +93,14 @@ CBaseWidget* CBaseContainer::getByID(int ID)
 CBaseWidget* CBaseContainer::getByPosition(int x,int y)
 {
 	CBaseWidget* ret = NULL;
- 	CCRect rc = this->getRect();
- 	if (rc.containsPoint(ccp(x,y)))
+ 	CRectange rc = this->getRect();
+ 	if (rc.containsPoint(CreateCPoint(x,y)))
  	{
  		//find the target
  		WidgetListReverseIter iter;
  		for (iter = m_pList->rbegin(); iter != m_pList->rend(); iter++)
  		{
- 			if ((*iter)->isVisble() && (*iter)->getRect().containsPoint(ccp(x,y)))
+ 			if ((*iter)->isVisble() && (*iter)->getRect().containsPoint(CreateCPoint(x,y)))
  			{
  				ret = (*iter);
  				break;
@@ -124,21 +127,35 @@ void CBaseContainer::clear(void)
 	}
 	m_pList->clear();
 }
-
+//////////////////////////////////////////////////////////////////////////
+void CBaseContainer::setScale(float var)
+{
+	m_scale = var;
+	CBaseWidget* temp = NULL;
+	WidgetListIter iter;
+	for (iter = m_pList->begin(); iter != m_pList->end(); iter++)
+	{
+		temp = *iter;
+		temp->setScale(var);
+	}
+}
 
 //////////////////////////////////////////////////////////////////////////
 void CBaseContainer::handlePenDown(CWidgetEvent& event)
 {
-	if (this->getRect().containsPoint(event.getPt()))
+	if (this->getChildRect().containsPoint(event.getPt()))
 	{
 		WidgetListReverseIter iter = m_pList->rbegin();
 		CBaseWidget* pTemp = NULL;
-		CCPoint ptTemp = event.getPt();
 		while(iter != m_pList->rend())
 		{
 			pTemp = *iter;
-			if (pTemp->getRect().containsPoint(ptTemp))
+			//convert pt to node space
+			CPoint ptTemp = event.getPt();
+			ptTemp = pTemp->converToNodeSpace(ptTemp);
+			if (pTemp->getChildRect().containsPoint(ptTemp))
 			{
+				event.setPt(ptTemp);
 				pTemp->handlePenDown(event);
 			}
 			iter++;
@@ -157,10 +174,11 @@ void CBaseContainer::handlePenUp(CWidgetEvent& event)
 	{
 		WidgetListReverseIter iter = m_pList->rbegin();
 		CBaseWidget* pTemp = NULL;
-		CCPoint ptTemp = event.getPt();
 		while(iter != m_pList->rend())
 		{
 			pTemp = *iter;
+			CPoint ptTemp = event.getPt();
+			ptTemp = pTemp->converToNodeSpace(ptTemp);
 			if (pTemp->getRect().containsPoint(ptTemp))
 			{
 				break;
@@ -170,6 +188,9 @@ void CBaseContainer::handlePenUp(CWidgetEvent& event)
 
 		if (pTemp == m_pCurrentSelWidget)
 		{
+			CPoint ptTemp = event.getPt();
+			ptTemp = pTemp->converToNodeSpace(ptTemp);
+			event.setPt(ptTemp);
 			m_pCurrentSelWidget->handlePenUp(event);
 			event.setHandled(false);
 			event.setType(CWidgetEvent::W_EVENT_PEN_CLICK);
@@ -178,7 +199,9 @@ void CBaseContainer::handlePenUp(CWidgetEvent& event)
 		else
 		{
 			m_pCurrentSelWidget->handlePenUp(event);
+
 		}
+		m_pCurrentSelWidget = NULL;
 	}
 }
 

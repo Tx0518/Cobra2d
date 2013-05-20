@@ -1,3 +1,4 @@
+#include "CGeometry.h"
 #include "CWidgetEvent.h"
 
 
@@ -5,6 +6,7 @@ CWidgetEvent::CWidgetEvent(CBaseWidget* pSrc,int iType)
 {
 	m_pSrc = pSrc;
 	m_iType = iType;
+	m_bHandled = false;
 }
 
 
@@ -33,12 +35,12 @@ bool CWidgetEvent::isHandled()
 	return m_bHandled;
 }
 
-void CWidgetEvent::setPt(cocos2d::CCPoint var)
+void CWidgetEvent::setPt(CPoint var)
 {
 	m_pt = var;
 }
 
-cocos2d::CCPoint CWidgetEvent::getPt()
+CPoint CWidgetEvent::getPt()
 {
 	return m_pt;
 }

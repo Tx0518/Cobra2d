@@ -24,6 +24,9 @@ public:
 	void handlePenMove(CWidgetEvent& event);
 	void handlePenMoveOut(CWidgetEvent& event);
 	//////////////////////////////////////////////////////////////////////////
+	//override
+	void setScale(float var);
+	//////////////////////////////////////////////////////////////////////////
 protected:
 	void clear(void);
 	typedef std::list<CBaseWidget*> WidgetList;

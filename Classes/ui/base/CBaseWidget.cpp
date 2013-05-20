@@ -1,12 +1,22 @@
 #include "CBaseWidget.h"
 #include "CPropertyHelper.h"
+//////////////////////////////////////////////////////////////////////////
+const std::string CBaseWidget::RECT			= "rect";
+const std::string CBaseWidget::TYPE			= "type";
+const std::string CBaseWidget::BK_COLOR		= "bkColor";
+const std::string CBaseWidget::VISIBLE		= "visible";
+const std::string CBaseWidget::ENABLE		= "enable";
+//////////////////////////////////////////////////////////////////////////
 IMPLEMENT_DYNCREATE(CBaseWidget);
 CBaseWidget::CBaseWidget(void)
 {
 	m_strType = "CBaseWidget";
 	m_bVisible = true;
 	m_bEnable = true;
-	m_bkColor = ccc4(128,128,128,0);
+	m_bkColor = CColor4B::makeC4B(128,128,128,0);
+	m_zOrder  = 0;
+	m_id      = 0;
+	m_scale   = 1.0f;
 }
 
 
@@ -14,6 +24,10 @@ CBaseWidget::~CBaseWidget(void)
 {
 }
 
+void CBaseWidget::logic(float dt)
+{
+	;//do nothing here
+}
 
  void CBaseWidget::handlePenDown(CWidgetEvent& event)
  {
@@ -88,14 +102,17 @@ CBaseWidget::~CBaseWidget(void)
 	 return m_strType;
  }
 
- void CBaseWidget::setRect(CCRect var)
+ void CBaseWidget::setRect(CRectange var)
  {
 	 m_rect = var;
  }
 
- CCRect CBaseWidget::getRect()
+ CRectange CBaseWidget::getRect()
  {
-	 return m_rect;
+	 CRectange ret = m_rect;
+	 ret.size.width *= m_scale;
+	 ret.size.height *= m_scale;
+	 return ret;
  }
 
  void CBaseWidget::setEnable(bool var)
@@ -128,19 +145,40 @@ CBaseWidget::~CBaseWidget(void)
 	 return m_zOrder;
  }
 
- CCRect CBaseWidget::getChildRect(void)
+ CRectange CBaseWidget::getChildRect(void)
  {
-	 CCRect rc = this->getRect();
-	 rc.origin = CCPointZero;
+	 CRectange rc = this->getRect();
+	 rc.origin = PointZero;
+	 rc.size.width  *= m_scale;
+	 rc.size.height *= m_scale; 
 	 return rc;
  }
 
- void CBaseWidget::setBkColor(ccColor4B var)
+ CPoint CBaseWidget::converToNodeSpace(const CPoint& pt)
+ {
+	 CPoint ret = pt;
+	 ret.x -= m_rect.origin.x;
+	 ret.y -= m_rect.origin.y;
+	 return ret;
+ }
+
+ void CBaseWidget::setBkColor(CColor4B var)
  {
 	 m_bkColor = var;
  }
 
- ccColor4B CBaseWidget::getBkColor()
+ CColor4B CBaseWidget::getBkColor()
  {
 	 return m_bkColor;
+ }
+
+
+ void CBaseWidget::setScale(float var)
+ {
+	 m_scale = var;
+ }
+
+ float CBaseWidget::getScale()
+ {
+	 return m_scale;
  }

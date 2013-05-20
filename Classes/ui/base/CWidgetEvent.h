@@ -1,7 +1,7 @@
 #ifndef __C_WIDGET_EVENT_H__
 #define __C_WIDGET_EVENT_H__
 #include "CMarcos.h"
-#include "cocos2d.h"
+#include "CGeometry.h"
 class CBaseWidget;
 class CWidgetEvent
 {
@@ -19,7 +19,7 @@ public:
 	~CWidgetEvent(void);
 
 	COBRA_CREATE_PROPERTY_BY_BOOL(m_bHandled,Handled);
-	COBRA_CREATE_PROPERTY(cocos2d::CCPoint,m_pt,Pt);
+	COBRA_CREATE_PROPERTY(CPoint,m_pt,Pt);
 	COBRA_CREATE_PROPERTY(int,m_iType,Type);
 private:
 	CBaseWidget* m_pSrc;
