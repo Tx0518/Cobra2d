@@ -8,9 +8,23 @@
 #include "SimpleAudioEngine.h"
 
 #include "CGui.h"
+#include "CommandHandlerMgr.h"
+
+class MyCCommandHandler:public CCommandHandler
+{
+public: 
+	MyCCommandHandler();
+	~MyCCommandHandler();
+	 void handleCmd(CUICommand& cmd);
+};
+
 class HelloWorld : public cocos2d::CCLayer
 {
 public:
+	//////////////////////////////////////////////////////////////////////////
+	static const int CMD_ID_EIXT = 12345;
+	//////////////////////////////////////////////////////////////////////////
+	
 	~HelloWorld();
     // Here's a difference. Method 'init' in cocos2d-x returns bool, instead of returning 'id' in cocos2d-iphone
     virtual bool init();  
@@ -18,8 +32,6 @@ public:
     // there's no 'id' in cpp, so we recommand to return the exactly class pointer
     static cocos2d::CCScene* scene();
     
-    // a selector callback
-    void menuCloseCallback(CCObject* pSender);
 
     // implement the "static node()" method manually
     CREATE_FUNC(HelloWorld);
@@ -29,8 +41,11 @@ public:
 	//////////////////////////////////////////////////////////////////////////
 	
 	void draw();
+
+	void update(float delta);
 private:
 	CGui* m_pGUI;
+	MyCCommandHandler m_MyCmdHandler;
 };
 
 #endif  // __HELLOWORLD_SCENE_H__
