@@ -1,14 +1,23 @@
+
+//////////////////////////////////////////////////////////////////////////
+#include "CGeometry.h"
+#include "CBaseWidget.h"
+#include "CBaseContainer.h"
+#include "IUIEventDispatcher.h"
+#include "CGui.h"
+//////////////////////////////////////////////////////////////////////////
 #include "CActivity.h"
 #include "CResponse.h"
 #include "CObserver.h"
 #include "CIntent.h"
 #include "CService.h"
+
 CActivity::CActivity( void )
 	:m_bisActive(false),
 	m_bHasObserver(false),
 	m_Observer(NULL),
 	m_Service(NULL),
-	m_pViewPort(NULL)
+	m_pGui(NULL)
 {
 	setObjType(COBRA_ACTIVITY);
 }
@@ -35,7 +44,7 @@ void CActivity::onFinish()
 {
 	COBRA_SAFE_DELETE(m_Service);
 	COBRA_SAFE_DELETE(m_Observer);
-	COBRA_SAFE_DELETE(m_pViewPort);
+	COBRA_SAFE_DELETE(m_pGui);
 }
 
 void CActivity::sethasObserver(bool var)
@@ -93,14 +102,14 @@ CService* CActivity::getService()
 	return m_Service;
 }
 
-void CActivity::setViewPort(CViewPort* var)
+void CActivity::setGUI(CGui* var)
 {
-	m_pViewPort = var;
+	m_pGui = var;
 }
 
-CViewPort* CActivity::getViewPort()
+CGui* CActivity::getGUI()
 {
-	return m_pViewPort;
+	return m_pGui;
 }
 
 //override

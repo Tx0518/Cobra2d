@@ -9,7 +9,7 @@ class CIntent;
 class CResponse;
 class CObserver;
 class CService;
-class CViewPort;
+class CGui;
 
 class CActivity : public CCobraObject,public IMsgObserver
 {
@@ -50,7 +50,7 @@ protected:
 	COBRA_CREATE_PROPERTY_BY_BOOL(m_bHasService,hasService)
 	COBRA_CREATE_PROPERTY(CObserver*,m_Observer,Observer)
 	COBRA_CREATE_PROPERTY(CService*,m_Service,Service)
-	COBRA_CREATE_PROPERTY(CViewPort*,m_pViewPort,ViewPort)
+	COBRA_CREATE_PROPERTY(CGui*,m_pGui,GUI)
 };
 
 #endif //_CACTIVITY_H_
