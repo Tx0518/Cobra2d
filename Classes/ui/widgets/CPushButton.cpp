@@ -47,7 +47,7 @@ void CPushButton::draw(CGraphic* pGraphic)
 		CCSize size = m_pCurrentPic->getContentSize();
 		size.width  *= m_scale;
 		size.height *= m_scale;
-		pGraphic->drawImage(m_pCurrentPic,0,0,0,0,size.width,size.height);
+		pGraphic->drawImage(m_pCurrentPic,0,0,0,0,size.width,size.height,this->getBkColor().a);
 	}
 	else
 	{
@@ -87,9 +87,9 @@ void CPushButton::draw(CGraphic* pGraphic)
 
  void CPushButton::setNormalPic(CCTexture2D* var)
  {
+	 CC_SAFE_RETAIN(var);
 	 CC_SAFE_RELEASE_NULL(m_pPicNormal);
 	 m_pPicNormal = var;
-	 CC_SAFE_RETAIN(m_pPicNormal);
 	 m_pCurrentPic = m_pPicNormal;
  }
 
@@ -100,9 +100,9 @@ void CPushButton::draw(CGraphic* pGraphic)
 
  void CPushButton::setClickPic(CCTexture2D* var)
  {
+	 CC_SAFE_RETAIN(var);
 	 CC_SAFE_RELEASE_NULL(m_pPicClick);
 	 m_pPicClick = var;
-	 CC_SAFE_RETAIN(m_pPicClick);
  }
 
  CCTexture2D* CPushButton::getClickPic()

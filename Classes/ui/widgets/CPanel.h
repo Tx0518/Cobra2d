@@ -5,6 +5,8 @@
 you can add child widget to it
 */
 /************************************************************************/
+#include "cocos2d.h"
+USING_NS_CC;
 class CBaseContainer;
 class CPanel:public CBaseContainer
 {
@@ -19,5 +21,6 @@ public:
 	static const std::string PANEL_BK_PIC;
 	//////////////////////////////////////////////////////////////////////////
 	void draw(CGraphic* pGraphic);
+	COBRA_CREATE_PROPERTY(CCTexture2D*,m_pBkPic,BkPic);
 };
 #endif//__C_PANEL_H__
