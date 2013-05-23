@@ -141,7 +141,7 @@ bool CGraphic::pushClipAreaInner(CRectange area)
  {
 	 m_Color = color;
  }
-void CGraphic::drawImage(const CCTexture2D* image,int srcX,int srcY,int dstX,int dstY,int width,int height)
+void CGraphic::drawImage(const CCTexture2D* image,int srcX,int srcY,int dstX,int dstY,int width,int height,unsigned char alpha)
 {
 	if(image && ! m_ClipStack.empty())
 	{
@@ -152,7 +152,7 @@ void CGraphic::drawImage(const CCTexture2D* image,int srcX,int srcY,int dstX,int
 		ccV3F_C4B_T2F_Quad sQuad = {0};
 		//////////////////////////////////////////////////////////////////////////
 		ccColor4B color4 = { 255, 255, 255,255 };
-
+		color4.a = alpha;
 		sQuad.bl.colors = color4;
 		sQuad.br.colors = color4;
 		sQuad.tl.colors = color4;
@@ -214,6 +214,14 @@ void CGraphic::drawImage(const CCTexture2D* image,int srcX,int srcY,int dstX,int
 		diff = offsetof( ccV3F_C4B_T2F, colors);
 		glVertexAttribPointer(kCCVertexAttrib_Color, 4, GL_UNSIGNED_BYTE, GL_TRUE, kQuadSize, (void*)(offset + diff));
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+		//////////////////////////////////////////////////////////////////////////
+		// draw bounding box
+		//for clip rect ,modify this position
+		CRectange rc(dstX - topRect.m_fXoffset + 1,
+			dstY - topRect.m_fYoffset + 1,
+			width - 2,height - 2);
+		this->drawRectangle(rc);
 	}
 }
 

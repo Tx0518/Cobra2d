@@ -21,7 +21,7 @@ public:
 	 //draw function
 	 //if you pass width/2,height/2
 	 //the image will be half of the original one
-	 void drawImage(const CCTexture2D* image,int srcX,int srcY,int dstX,int dstY,int width,int height);
+	 void drawImage(const CCTexture2D* image,int srcX,int srcY,int dstX,int dstY,int width,int height,unsigned char alpha = 255);
 	 void drawPoint(int x, int y);
 
 	 void drawLine(int x1, int y1, int x2, int y2);
