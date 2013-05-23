@@ -31,31 +31,31 @@ void CBaseWidget::logic(float dt)
 
  void CBaseWidget::handlePenDown(CWidgetEvent& event)
  {
-	event.setHandled(true);
+	
  }
 
  void CBaseWidget::handlePenUp(CWidgetEvent& event)
  {
-	 event.setHandled(true);
+	 
  }
 
  void CBaseWidget::handlePenClick(CWidgetEvent& event)
  {
-	 event.setHandled(true);
+	 
  }
  void CBaseWidget::handlePenMoveIn(CWidgetEvent& event)
  {
-	 event.setHandled(true);
+	
  }
 
  void CBaseWidget::handlePenMove(CWidgetEvent& event)
  {
-	 event.setHandled(true);
+	 
  }
 
  void CBaseWidget::handlePenMoveOut(CWidgetEvent& event)
  {
-	event.setHandled(true);
+	
  }
 
  bool CBaseWidget::load(std::string& str)

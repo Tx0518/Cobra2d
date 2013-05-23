@@ -11,8 +11,8 @@ public:
 	//////////////////////////////////////////////////////////////////////////
 	void draw(CGraphic* pGraphic);
 	//////////////////////////////////////////////////////////////////////////
-	void add(CBaseWidget* pWidget);
-	void add(CBaseWidget* pWidget,int x,int y);
+	virtual void add(CBaseWidget* pWidget);
+	virtual void add(CBaseWidget* pWidget,int x,int y);
 	void remove(CBaseWidget* pWidget);
 	CBaseWidget* getByID(int ID);
 	CBaseWidget* getByPosition(int x,int y);
@@ -26,6 +26,7 @@ public:
 	//////////////////////////////////////////////////////////////////////////
 	//override
 	void setScale(float var);
+	//void logic(float dt);
 	//////////////////////////////////////////////////////////////////////////
 protected:
 	void clear(void);

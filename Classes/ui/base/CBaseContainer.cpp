@@ -33,10 +33,23 @@ void CBaseContainer::draw(CGraphic* pGraphic)
 	pGraphic->pushClipArea(this->getChildRect());
 
  	WidgetListIter iter;
+	CRectange rc;
  	for (iter = m_pList->begin(); iter != m_pList->end(); iter++)
  	{
  		if ((*iter)->isVisble())
  		{
+			rc = (*iter)->getRect();
+			//if can not been seen just continue
+			if (rc.size.height + rc.origin.y <= 0)
+			{
+				continue;
+			}
+
+			if (rc.origin.y >= this->getRect().size.height)
+			{
+				continue;
+			}
+
  			pGraphic->pushClipArea((*iter)->getRect());
  			(*iter)->draw(pGraphic);
  			pGraphic->popClipArea();
@@ -157,13 +170,14 @@ void CBaseContainer::handlePenDown(CWidgetEvent& event)
 			{
 				event.setPt(ptTemp);
 				pTemp->handlePenDown(event);
-			}
-			iter++;
-			if (event.isHandled())
-			{
-				m_pCurrentSelWidget = pTemp;
+				if (event.isHandled())
+				{
+					m_pCurrentSelWidget = pTemp;
+				}
 				break;
 			}
+			iter++;
+
 		}
 	}
 }
@@ -179,7 +193,7 @@ void CBaseContainer::handlePenUp(CWidgetEvent& event)
 			pTemp = *iter;
 			CPoint ptTemp = event.getPt();
 			ptTemp = pTemp->converToNodeSpace(ptTemp);
-			if (pTemp->getRect().containsPoint(ptTemp))
+			if (pTemp->getChildRect().containsPoint(ptTemp))
 			{
 				break;
 			}
@@ -230,4 +244,15 @@ void CBaseContainer::handlePenMoveOut(CWidgetEvent& event)
 {
 	;//TODO
 }
+
+// void CBaseContainer::logic(float dt)
+// {
+// 	WidgetListReverseIter iter = m_pList->rbegin();
+// 	CBaseWidget* pTemp = NULL;
+// 	while(iter != m_pList->rend())
+// 	{
+// 		(*iter)->logic(dt);
+// 		iter++;
+// 	}
+// }
 //////////////////////////////////////////////////////////////////////////
