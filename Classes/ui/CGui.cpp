@@ -39,7 +39,7 @@ void CGui::ccTouchMoved(CCTouch *pTouch, CCEvent *pEvent)
 	CPoint  touchLocation;
 	touchLocation.x = ptCococs2dx.x;
 	touchLocation.y = ptCococs2dx.y;
-	CWidgetEvent event(this,CWidgetEvent::W_EVENT_PEN_DOWN);
+	CWidgetEvent event(this,CWidgetEvent::W_EVENT_PEN_MOVE);
 	event.setPt(touchLocation);
 	this->DispatchWidgetEvent(event);
 }
@@ -115,5 +115,6 @@ void CGui::draw(void)
 
  void CGui::logic(float dt)
  {
-	m_pCommandHandlerMgr->handleCmd();
+	m_pCommandHandlerMgr->handleCmd(dt);
+	//CBaseContainer::logic(dt);
  }
