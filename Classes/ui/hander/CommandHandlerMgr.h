@@ -18,6 +18,7 @@ public:
 	virtual ~CUICommand();
 	COBRA_CREATE_PROPERTY(CBaseWidget*,m_pSource,Source);
 	COBRA_CREATE_PROPERTY(int,m_iCommandID,CmdID);
+	COBRA_CREATE_PROPERTY(float,m_dt,deltaT);
 	//m_pExtraData will be deep copied
 //	COBRA_CREATE_PROPERTY(CBundle*,m_pExtraData,ExtraData);
 };
@@ -52,12 +53,14 @@ private:
 	void addCmdHander(CCommandHandler* pcmdHander);
 	void removeCmdHandler(CCommandHandler* pcmdHander);
  	//////////////////////////////////////////////////////////////////////////
-	void handleCmd(void);
+	void handleCmd(float dt);
 	//////////////////////////////////////////////////////////////////////////
  private:
 	 //////////////////////////////////////////////////////////////////////////
 
 	 //////////////////////////////////////////////////////////////////////////
+	 //cache a cmd for next tick to execute
+	 std::deque<CUICommand>  m_commandQueueCache;
 	//hold cmd obj to be handled
 	 std::deque<CUICommand> m_commandQueue;
 	//hold ptr of cmd handler

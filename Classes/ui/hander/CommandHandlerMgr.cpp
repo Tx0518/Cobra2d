@@ -38,6 +38,16 @@ int CUICommand::getCmdID()
 	return m_iCommandID;
 }
 
+void CUICommand::setdeltaT(float var)
+{
+	m_dt = var;
+}
+
+float CUICommand::getdeltaT()
+{
+	return m_dt;
+}
+
 // void CUICommand::setExtraData(CBundle* var)
 // {
 // 	COBRA_SAFE_DELETE(m_pExtraData);
@@ -107,13 +117,21 @@ CCommandHandlerMgr::~CCommandHandlerMgr(void)
 
 void CCommandHandlerMgr::postCmd(CUICommand& cmd)
 {	//just add to the quene
-	m_commandQueue.push_back(cmd);
+	m_commandQueueCache.push_back(cmd);
 }
 
 
 void CCommandHandlerMgr::addCmdHander(CCommandHandler* pcmdHander)
 {
-	m_listCmdHandler.push_back(pcmdHander);
+	std::list<CCommandHandler*>::iterator iter = std::find(m_listCmdHandler.begin(),m_listCmdHandler.end(),pcmdHander);
+	if (iter == m_listCmdHandler.end())
+	{
+		m_listCmdHandler.push_back(pcmdHander);
+	}
+	else
+	{
+		LOG("try to add an already existed handler do nothing here");
+	}
 }
 
 void CCommandHandlerMgr::removeCmdHandler(CCommandHandler* pcmdHander)
@@ -125,11 +143,12 @@ void CCommandHandlerMgr::removeCmdHandler(CCommandHandler* pcmdHander)
 	}
 }
 
-void CCommandHandlerMgr::handleCmd(void)
+void CCommandHandlerMgr::handleCmd(float dt)
 {
 	while(!m_commandQueue.empty())
 	{
 		CUICommand& cmd = m_commandQueue.front();
+		cmd.setdeltaT(dt);
 		std::list<CCommandHandler*>::iterator iter = m_listCmdHandler.begin();
 		while(iter != m_listCmdHandler.end())
 		{//send cmd to handler if this handler interests in this id handle it
@@ -138,6 +157,14 @@ void CCommandHandlerMgr::handleCmd(void)
 			iter++;
 		}
 		m_commandQueue.pop_front();
+	}
+	//////////////////////////////////////////////////////////////////////////
+	//syn m_commandQueueCache to m_commandQueue
+	while(!m_commandQueueCache.empty())
+	{
+		CUICommand& cmd = m_commandQueueCache.front();
+		m_commandQueue.push_back(cmd);
+		m_commandQueueCache.pop_front();
 	}
 }
 //////////////////////////////////////////////////////////////////////////
