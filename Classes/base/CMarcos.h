@@ -54,9 +54,16 @@ public: virtual const varType& get##funName(void) const { return varName; }
 
 #include "cocos2d.h"
 #define LOG		cocos2d::CCLog
-#define  ENTERFUNC()    LOG("enter func %s in %s",__FUNCTION__, __FILE__)
-#define  LVFUNC()       LOG("leave func %s in %s",__FUNCTION__, __FILE__)
+#define  ENTERFUNC()    LOG("enter func %s in %d",__FUNCTION__, __LINE__)
+#define  LVFUNC()       LOG("leave func %s in %d",__FUNCTION__, __LINE__)
 
+
+//abs
+#define  cabs(a)  (((a) > 0)?(a):(-(a)))
+//max
+#define  cmax(a,b) ((a) > (b))?(a):(b)
+//min
+#define  cmin(a,b) ((a) < (b))?(a):(b)
 
 //platform
 //////////////////////////////////////////////////////////////////////////
