@@ -3,6 +3,7 @@
 #include <map>
 #include "CPanel.h"
 #include "CPushButton.h"
+#include "CSorllPanel.h"
 #include "CGraphic.h"
 
 using namespace cocos2d;
@@ -52,6 +53,7 @@ bool HelloWorld::init()
 		m_pGUI->setRect(CreateCRect(0,0,size.width,size.height));
 		m_pGUI->setBkColor(CreateCColor(255,0,0,255));
 		//add panel to gui
+#if 0
 		CPanel* pPanel = new CPanel();
 		pPanel->setBkColor(CreateCColor(0,255,0,255));
 		pPanel->setRect(CreateCRect(100,100,100,50));
@@ -66,6 +68,7 @@ bool HelloWorld::init()
 		pPanel->add(pPanel2);
 		//set scale to parent all child will be effected!!
 		pPanel->setScale(2.0);
+#endif
 		//add a btn to gui
 		CCTexture2D* pPicNormal = CCTextureCache::sharedTextureCache()->addImage("CloseNormal.png");
 		CCTexture2D* pPicSel = CCTextureCache::sharedTextureCache()->addImage("CloseSelected.png");
@@ -73,13 +76,46 @@ bool HelloWorld::init()
 		pBtn->setNormalPic(pPicNormal);
 		pBtn->setClickPic(pPicSel);
 		
-		pBtn->setRect(CreateCRect(20,20,pPicSel->getContentSize().width,pPicSel->getContentSize().height));
-		pBtn->setScale(2.0f);
+		pBtn->setRect(CreateCRect(size.width - pPicSel->getContentSize().width,size.height - pPicSel->getContentSize().height,
+					pPicSel->getContentSize().width,pPicSel->getContentSize().height));
+		pBtn->setBkColor(CreateCColor(255,255,255,128));
 		pBtn->setZOrder(1);
 		pBtn->setcmdID(HelloWorld::CMD_ID_EIXT);
 		m_pGUI->add(pBtn);
 
 
+		CSorllPanel* pSrollPanel = new CSorllPanel();
+		pSrollPanel->setBkColor(CreateCColor(128,128,128,255));
+		pSrollPanel->setRect(CreateCRect(0,0,300,300));
+		m_pGUI->add(pSrollPanel);
+
+
+		CColor4B color(0,0,0,255); 
+		CRectange rc(0,0,200,45);
+		for (int index = 0;index < 50;index++)
+		{
+			CPanel* p1 = new CPanel();
+			p1->setBkColor(color);
+			p1->setRect(rc);
+			pSrollPanel->add(p1);
+			rc.origin.y += 50;
+			color.r += 5;
+			if (color.r > 255)
+			{
+				color.r = 255;
+				color.g += 5;
+				if (color.g > 255)
+				{
+					color.g = 255;
+					color.b += 5;
+					if (color.b > 255)
+					{
+						color.b = 255;
+					}
+				}
+			}
+			
+		}
 		//registe handler
 		m_MyCmdHandler.addInterestCmdID(HelloWorld::CMD_ID_EIXT);
 		CCommandHandlerMgr::instance()->addCmdHander(&m_MyCmdHandler);
