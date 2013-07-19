@@ -4,10 +4,12 @@ USING_NS_CC;
 #include "CPushButton.h"
 #include "CGraphic.h"
 #include "CommandHandlerMgr.h"
+#include "CPropertyHelper.h"
 //////////////////////////////////////////////////////////////////////////
- const std::string CPushButton::PUSH_BTN_TYPE = "btn";
+ const std::string CPushButton::PUSH_BTN_TYPE = "CPushButton";
  const std::string CPushButton::PB_NORMAL_PIC = "btnNormalPic";
  const std::string CPushButton::PB_CLICK_PIC  = "btnSelPic";
+ const std::string CPushButton::PB_CMD_ID = "btnCmdId";
 //////////////////////////////////////////////////////////////////////////
 IMPLEMENT_DYNCREATE(CPushButton);
 //////////////////////////////////////////////////////////////////////////
@@ -18,12 +20,16 @@ CPushButton::CPushButton(void)
 	m_pPicClick   = NULL;
 	m_pCurrentPic = NULL;
 	m_cmdID       = 0;//
+	m_bSupportLongClick = false;
+	m_iPenDownTime = 0;
+	m_iPenUpTime   = 0;
 }
 
 
 CPushButton::~CPushButton(void)
 {
-
+	CC_SAFE_RELEASE_NULL(m_pPicNormal);
+	CC_SAFE_RELEASE_NULL(m_pPicClick);
 }
 
 void CGAffineToGL2(const CCAffineTransform *t, GLfloat *m)
@@ -42,16 +48,14 @@ void CGAffineToGL2(const CCAffineTransform *t, GLfloat *m)
 
 void CPushButton::draw(CGraphic* pGraphic)
 {
+	CRectange rc = this->getChildRect();
 	if (m_pCurrentPic)
 	{
-		CCSize size = m_pCurrentPic->getContentSize();
-		size.width  *= m_scale;
-		size.height *= m_scale;
-		pGraphic->drawImage(m_pCurrentPic,0,0,0,0,size.width,size.height,this->getBkColor().a);
+		pGraphic->drawImage(m_pCurrentPic,0,0,0,0,rc.size.width,rc.size.height,this->getBkColor());
 	}
 	else
 	{
-		CRectange rc = this->getChildRect();
+		
 		pGraphic->setColor(this->getBkColor());
 		pGraphic->fillRectangle(rc);
 	}
@@ -64,6 +68,9 @@ void CPushButton::draw(CGraphic* pGraphic)
 		 m_pCurrentPic = m_pPicClick;
 	 }
 	 event.setHandled(true);
+	 m_iPenDownTime = 0;
+	 m_iPenUpTime   = 0;
+	 m_iPenDownTime = clock();
  }
 
  void CPushButton::handlePenUp(CWidgetEvent& event)
@@ -73,15 +80,27 @@ void CPushButton::draw(CGraphic* pGraphic)
 		 m_pCurrentPic = m_pPicNormal;
 	 }
 	 event.setHandled(true);
+	 m_iPenUpTime = clock();
  }
 
  void CPushButton::handlePenClick(CWidgetEvent& event)
  {
 	 LOG("button [%d] is clicked",this->getID());
-	 //post cmd to handler manager
 	 CUICommand cmd;
 	 cmd.setSource(this);
-	 cmd.setCmdID(this->getcmdID());
+	 //one second has one thousand millisecond
+	 LOG("time elapsed = [%f]",(float)(m_iPenUpTime - m_iPenDownTime) / CLOCKS_PER_SEC);
+	 if (m_bSupportLongClick && (float)(m_iPenUpTime - m_iPenDownTime) / CLOCKS_PER_SEC >=  ((float)m_iMilliSencondInterval/1000.0f))
+	 {
+		 //trigger long press event
+		 LOG("trigger long press event");
+		 cmd.setCmdID(this->m_iCmdLongPress);
+	 }
+	 else
+	 {
+		 //post cmd to handler manager
+		 cmd.setCmdID(this->getcmdID());
+	 }
 	 CCommandHandlerMgr::instance()->postCmd(cmd);
  }
 
@@ -109,13 +128,64 @@ void CPushButton::draw(CGraphic* pGraphic)
  {
 	 return m_pPicClick;
  }
- 
- void CPushButton::setcmdID(int var)
+
+ void CPushButton::computeContentSize(CCTexture2D* pPic)
  {
-	 m_cmdID = var;
+	 if (pPic)
+	 {
+		 CCSize size = pPic->getContentSize();
+		 m_contentSize.width = comax(size.width,m_contentSize.width);
+		 m_contentSize.height = comax(size.height,m_contentSize.height);
+	 }
+	 else
+	 {
+		 ;//do nothing
+	 }
  }
 
- int CPushButton::getcmdID()
+ void CPushButton::updateContentSize(void)
  {
-	 return m_cmdID;
+	 this->computeContentSize(m_pPicNormal);
+	 this->computeContentSize(m_pPicClick);
+ }
+
+ void CPushButton::setlongClick( bool bSupport,int iCmdIDLongPress,int iMilliSencond /*= PUSH_BTN_LONG_PRESS_INTERVAL*/ )
+ {
+	 m_bSupportLongClick = bSupport;
+	 m_iCmdLongPress     = iCmdIDLongPress;
+	 m_iMilliSencondInterval = iMilliSencond;
+ }
+
+ bool CPushButton::setPorperty( const std::string& key,const std::string& strvalue )
+ {
+	 bool ret = true;
+	 do 
+	 {
+		 ret = CBaseWidget::setPorperty(key,strvalue);
+		 if (ret)
+		 {
+			 break;
+		 }
+		 //////////////////////////////////////////////////////////////////////////
+		 CCTextureCache* pCache = CCTextureCache::sharedTextureCache();
+		 if (key == CPushButton::PB_NORMAL_PIC)
+		 {
+			 CCTexture2D* pPic = pCache->addImage(strvalue.c_str());
+			 this->setNormalPic(pPic);
+		 }
+		 else if (key == CPushButton::PB_CLICK_PIC)
+		 {
+			 CCTexture2D* pPic = pCache->addImage(strvalue.c_str());
+			 this->setClickPic(pPic);
+		 }
+		 else if (key == CPushButton::PB_CMD_ID)
+		 {
+			 this->setcmdID(CPropertyHelper::stringToInt(strvalue));
+		 }
+		 else
+		 {
+			 ret = false;
+		 }
+	 } while (0);
+	 return ret;
  }

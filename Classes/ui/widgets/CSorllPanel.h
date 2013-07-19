@@ -1,6 +1,14 @@
 #ifndef __SCROLL_PANEL_H__
 #define __SCROLL_PANEL_H__
 #include "CommandHandlerMgr.h"
+/************************************************************************/
+/* how to use ex:
+CSorllPanel* pPanel = new CSorllPanel();
+pPanel->setRect(CreateCRect(200,0,200,250));
+//add children to pPanel
+......
+*/
+/************************************************************************/
 //////////////////////////////////////////////////////////////////////////
 class CHandlerScollPanel:public CCommandHandler
 {
@@ -8,6 +16,7 @@ public:
 	CHandlerScollPanel();
 	~CHandlerScollPanel();
 	void handleCmd(CUICommand& cmd);
+	COBRA_CREATE_PROPERTY(CBaseWidget*,m_pSource,Source)
 };
 //////////////////////////////////////////////////////////////////////////
 class CPanel;
@@ -16,7 +25,7 @@ typedef struct _stMoveInfo
 {
 	enum
 	{
-		MOVE_INFO_DIR_UP,
+		MOVE_INFO_DIR_UP ,
 		MOVE_INFO_DIR_DOWN,
 		MOVE_INFO_DIR_LEFT,
 		MOVE_INFO_DIR_RIGHT,
@@ -73,16 +82,24 @@ class CSorllPanel:public CPanel
 public:
 	enum
 	{
-		E_SORLL_TYPE_VERTI,
-		E_SORLL_TYPE_HORI
+		E_SORLL_TYPE_VERTI = 1<<1,
+		E_SORLL_TYPE_HORI  = 1<<2
 	};
+	//////////////////////////////////////////////////////////////////////////
+	static const std::string SORLL_PANEL_TYPE;
+	//////////////////////////////////////////////////////////////////////////
 	//cmd id
 	static const int CMD_SP_MOVE_UP   = 0x2000;
 	static const int CMD_SP_MOVE_DOWN = 0x2001;
 	static const int CMD_SP_MOVE_BK_UP = 0x2002;
 	static const int CMD_SP_MOVE_BK_DOWN = 0x2003;
+	//////////////////////////////////////////////////////////////////////////
+	static const int CMD_SP_MOVE_LEFT  = 0x2004;
+	static const int CMD_SP_MOVE_RIGHT = 0x2005;
+	static const int CMD_SP_MOVE_BK_LEFT = 0x2006;
+	static const int CMD_SP_MOVE_BK_RIGHT = 0x2007;
 	CSorllPanel(void);
-	~CSorllPanel(void);
+	virtual ~CSorllPanel(void);
 	//////////////////////////////////////////////////////////////////////////
 	void add(CBaseWidget* pWidget);
 	void add(CBaseWidget* pWidget,int x,int y);
@@ -99,23 +116,33 @@ public:
 
 	 void setMoveBackSpan(int iSpan);
 	//////////////////////////////////////////////////////////////////////////
-	COBRA_CREATE_PROPERTY(int,m_sorllType,SorllType);
-	COBRA_CREATE_PROPERTY(int,m_damp,Damp);
-	
-private:
+	COBRA_CREATE_PROPERTY(int,m_sorllType,SorllType)
+	COBRA_CREATE_PROPERTY(int,m_damp,Damp)
+	COBRA_CREATE_PROPERTY_BY_BOOL(m_bSorllAble,SorllAble)
+protected:
 	void updateCursor(CBaseWidget* pWidget);
-	void updateChildPos(float fDelta);
+private:
+	//////////////////////////////////////////////////////////////////////////
+	void computeOffset(float& offset,float offsetLimit,float& currentMoveCursor,float maxMoveCursor);
+	void handleMoveInner(MoveInfo& moveInfo);
+	//////////////////////////////////////////////////////////////////////////
+
+	void updateChildPos(float fDeltaX,float fDeltaY);
 	void computeVelocity(void);
 	void triggerMoveBack(void);
 	void triggerMove(void);
 	//////////////////////////////////////////////////////////////////////////
 	float m_moveCursor;
 	float m_maxMoveCursor;
+	float m_moveCursorHori;
+	float m_maxMoveCursorHori;
 	int m_fTotleContentHeight;
 	CPoint m_ptOldPos;
 	//////////////////////////////////////////////////////////////////////////
 	MoveInfo m_moveInfo;
 	MoveBackInfo m_movebackInfo;
+	MoveInfo m_moveInfoHori;
+	MoveBackInfo m_movebackInfoHori;
 	//////////////////////////////////////////////////////////////////////////
 	CHandlerScollPanel m_handler;
 };
