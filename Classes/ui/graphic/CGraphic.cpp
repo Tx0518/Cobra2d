@@ -141,7 +141,7 @@ bool CGraphic::pushClipAreaInner(CRectange area)
  {
 	 m_Color = color;
  }
-void CGraphic::drawImage(const CCTexture2D* image,int srcX,int srcY,int dstX,int dstY,int width,int height,unsigned char alpha)
+void CGraphic::drawImage(const CCTexture2D* image,int srcX,int srcY,int dstX,int dstY,int width,int height,CColor4B& color)
 {
 	if(image && ! m_ClipStack.empty())
 	{
@@ -151,8 +151,7 @@ void CGraphic::drawImage(const CCTexture2D* image,int srcX,int srcY,int dstX,int
 		dstY += topRect.m_fYoffset;
 		ccV3F_C4B_T2F_Quad sQuad = {0};
 		//////////////////////////////////////////////////////////////////////////
-		ccColor4B color4 = { 255, 255, 255,255 };
-		color4.a = alpha;
+		ccColor4B color4 = ccc4(color.r,color.g,color.b,color.a);
 		sQuad.bl.colors = color4;
 		sQuad.br.colors = color4;
 		sQuad.tl.colors = color4;
@@ -193,7 +192,7 @@ void CGraphic::drawImage(const CCTexture2D* image,int srcX,int srcY,int dstX,int
 		//////////////////////////////////////////////////////////////////////////
 
 
-		ccGLEnableVertexAttribs( kCCVertexAttribFlag_PosColorTex );
+	
 
 #define kQuadSize sizeof(sQuad.bl)
 		m_pShader->use();
@@ -218,6 +217,7 @@ void CGraphic::drawImage(const CCTexture2D* image,int srcX,int srcY,int dstX,int
 		//////////////////////////////////////////////////////////////////////////
 		// draw bounding box
 		//for clip rect ,modify this position
+		this->setColor(CreateCColor(0,0,0,255));
 		CRectange rc(dstX - topRect.m_fXoffset + 1,
 			dstY - topRect.m_fYoffset + 1,
 			width - 2,height - 2);
@@ -304,7 +304,7 @@ void CGraphic::fillRectangle(const CRectange& rectangle)
 }
 
 
-#if 0//this is for rotation
+#if 1//this is for rotation
 //do not implement all the logic
 void CGAffineToGL(const CCAffineTransform *t, GLfloat *m)
 {
@@ -318,11 +318,20 @@ void CGAffineToGL(const CCAffineTransform *t, GLfloat *m)
 	m[0] = t->a; m[4] = t->c; m[12] = t->tx;
 	m[1] = t->b; m[5] = t->d; m[13] = t->ty;
 }
- void CGraphic::drawImage2(const CCTexture2D* image,int srcX,int srcY,int dstX,int dstY,int width,int height)
+ void CGraphic::drawImageEx(const CCTexture2D* image,int srcX,int srcY,int dstX,int dstY,int width,int height,CColor4B& color,float fRotate)
  {
+	 if(image && ! m_ClipStack.empty())
+	 {
+		 const CClipRect& topRect = m_ClipStack.top();
+
+		 dstX += topRect.m_fXoffset;
+		 dstY += topRect.m_fYoffset;
 	 kmGLPushMatrix();
 
-	 float cx = 1, sx = 0, cy = 1, sy = 0,m_fRotationX = 60,m_fRotationY = 60;
+	 float cx = 1, sx = 0, cy = 1, sy = 0;
+	 float m_fRotationX = 0,m_fRotationY = 0;
+	 m_fRotationX = fRotate;
+	 m_fRotationY = fRotate;
 	 if (m_fRotationX || m_fRotationY)
 	 {
 		 float radiansX = -CC_DEGREES_TO_RADIANS(m_fRotationX);
@@ -429,8 +438,8 @@ void CGAffineToGL(const CCAffineTransform *t, GLfloat *m)
 	 diff = offsetof( ccV3F_C4B_T2F, colors);
 	 glVertexAttribPointer(kCCVertexAttrib_Color, 4, GL_UNSIGNED_BYTE, GL_TRUE, kQuadSize, (void*)(offset + diff));
 	 glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-
 	 kmGLPopMatrix();
+ }
  }
 #endif
 //////////////////////////////////////////////////////////////////////////
