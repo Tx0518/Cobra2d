@@ -21,6 +21,7 @@ public:
 	COBRA_CREATE_PROPERTY_BY_BOOL(m_bHandled,Handled);
 	COBRA_CREATE_PROPERTY(CPoint,m_pt,Pt);
 	COBRA_CREATE_PROPERTY(int,m_iType,Type);
+	COBRA_CREATE_PROPERTY_BY_BOOL(m_bCanceld,Canceled);
 private:
 	CBaseWidget* m_pSrc;
 };
