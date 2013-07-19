@@ -2,23 +2,21 @@
 #include "CActivityService.h"
 #include "CNotificationService.h"
 #include "CDataCloudService.h"
+#include "CEventService.h"
+#include "CGUIService.h"
 #include "CNetService.h"
-#include "CPlusInclude.h"
-#include "CRDef.h"
-#include "CCobraObjectPool.h"
+#include "CHttpService.h"
 #include "CService.h"
 #include "CIntent.h"
 #include "CActivity.h"
-#include <stdlib.h>
+#include "CMemoryCache.h"
+#include "CSTLHelper.h"
 
-#if 1
-#include "CXmlUtils.h"
-#endif
 
+CApplication* CApplication::m_Instance = NULL;
 
 CApplication::CApplication( void )
-	:m_CobraPool(NULL),
-	m_bInit(false)
+	:m_bIsCreated(false)
 {
 }
 
@@ -26,106 +24,50 @@ CApplication::~CApplication( void )
 {
 }
 
-
-bool CApplication::isInit()
+CApplication* CApplication::shareApplication()
 {
-	return m_bInit;
+	if(m_Instance == NULL)
+		m_Instance = new CApplication();
+	return  m_Instance;
 }
-
 
 void CApplication::onCreate()
 {
-	m_CobraPool = new CCobraObjectPool();
-	loadCobraConfig("CobraMainConfig.xml");
-}
-
-/*
-	loadCobraConfig 读取配置表
-*/
-void CApplication::loadCobraConfig(const char* xmlPath)
-{
-	if(xmlPath == NULL) return;
-	pugi::xml_document doc;
-	if(doc.load_file(xmlPath))
-	{
-	 	pugi::xml_node rootNode = doc.child("CobraConfig");		
-		const char* versonCode = rootNode.child_value("versionCode");
-		const char* versionName = rootNode.child_value("versionName");
-		pugi::xml_node  serverNode = rootNode.child("Services");
-		pugi::xml_node ddd = rootNode.child("versionCode");
-		pugi::xml_node eleNode;
-		std::string serverName;
-		for (eleNode = serverNode.first_child();eleNode;eleNode= serverNode.next_sibling())
-		{
-			serverName = eleNode.attribute("name").as_string();
-			if( serverName.compare(SERVICE_ACTIVITY))
-			{
-				CActivityService::getInstance()->onStart();
-				CActivityService::getInstance()->setObjectID(SERVICE_ACTIVITY_GUID);
-				m_CobraPool->addCobraObject(CActivityService::getInstance());
-			}
-			else if(serverName.compare(SERVICE_NOTIFICATION))
-			{
-				CNotificationService::getInstance()->onStart();
-				CNotificationService::getInstance()->setObjectID(SERVICE_NOTIFICATION_GUID);
-				m_CobraPool->addCobraObject(CNotificationService::getInstance());
-			}
-			else if( serverName.compare(SERVICE_DATACLOUD))
-			{
-				CDataCloudService::getInstance()->onStart();
-				CDataCloudService::getInstance()->setObjectID(SERVICE_DATACLOUD_GUID);
-				m_CobraPool->addCobraObject(CDataCloudService::getInstance());
-			}
-			else if(serverName.compare(SERVICE_NET))
-			{
-				CNetService::getInstance()->onStart();
-				CNetService::getInstance()->setObjectID(SERVICE_NET_GUID);
-				m_CobraPool->addCobraObject(CNetService::getInstance());
-			}
-		}
-	}
-}
-
-/*
-	读取应用服务对象
-*/	
-CService* CApplication::getServiceById( int id )
-{
-	return dynamic_cast<CService*>(m_CobraPool->getCobraObjectById(id));
+	if(m_bIsCreated) return;
+	MemoryCacheShare->putExtra(COBRA_SERVICES,new CActivityService());
+	MemoryCacheShare->putExtra(COBRA_SERVICES,new CNetService());
+	MemoryCacheShare->putExtra(COBRA_SERVICES,new CNotificationService());
+	MemoryCacheShare->putExtra(COBRA_SERVICES,new CDataCloudService());
+	MemoryCacheShare->putExtra(COBRA_SERVICES,new CGuiService());
+	MemoryCacheShare->putExtra(COBRA_SERVICES,new CHttpService());
+	MemoryCacheShare->putExtra(COBRA_SERVICES,new CEventService());
+	m_bIsCreated = true;
 }
 
 void CApplication::onFinish()
 {
-	COBRA_SAFE_DELETE(m_CobraPool);
-	CActivityService::getInstance()->onFinish();
-	CNotificationService::getInstance()->onFinish();
-	CDataCloudService::getInstance()->onFinish();
+	MemoryCacheShare->deleteExtra(COBRA_SERVICES,SERVICE_ACTIVITY);
+	MemoryCacheShare->deleteExtra(COBRA_SERVICES,SERVICE_NET);
+	MemoryCacheShare->deleteExtra(COBRA_SERVICES,SERVICE_NOTIFICATION);
+	MemoryCacheShare->deleteExtra(COBRA_SERVICES,SERVICE_GUI);
+	MemoryCacheShare->deleteExtra(COBRA_SERVICES,SERVICE_DATACLOUD);
+	MemoryCacheShare->deleteExtra(COBRA_SERVICES,SERVICE_HTTP);
+	MemoryCacheShare->deleteExtra(COBRA_SERVICES,SERVICE_EVENT);
 }
 
-void CApplication::bindService( CIntent* intent )
+void CApplication::didEnterApplication()
 {
-	if( intent == NULL) return;
-	if( intent->getServiceID() == -1 ) return;
-	CActivity* activity = dynamic_cast<CActivity*>(CActivityService::getInstance()->getCobraObjectById(intent->getTargetKey()));
-	CService* service = getServiceById(intent->getServiceID());
-	if(service)
-		service->addCobraObject(activity);
+// 	CCobraObjectPool* servicePool = MemoryCacheShare->getCobraObjectPool(COBRA_SERVICES);
+// 	COBRA_CHECK_NULL(servicePool);
+// 	servicePool->getObjectPool();
 }
 
-void CApplication::unBindService( CIntent* intent )
+void CApplication::didExitApplication()
 {
-	if( intent == NULL) return;
-	if( intent->getServiceID() == -1 ) return;
-	CActivity* activity = dynamic_cast<CActivity*>(CActivityService::getInstance()->getCobraObjectById(intent->getTargetKey()));
-	CService* service = getServiceById(intent->getServiceID());
-	if(service)
-		service->removeCobraObject(activity);
+
 }
 
-bool CApplication::isServiceRunnable( int serviceID )
+void CApplication::onMainLoop()
 {
-	CService* service = getServiceById(serviceID);
-	if(service)
-		return service->isRunning();
-	return false;
+	//do something
 }

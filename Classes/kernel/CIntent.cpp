@@ -1,96 +1,89 @@
 #include "CIntent.h"
 #include "CCobraObject.h"
+#include "CBundle.h"
+
 
 CIntent::CIntent( void )
 	:m_iAction(INTENT_UNKOWN),
-	m_iServiceID(-1),
-	m_iTargetKey(-1),
-	m_TargetObject(NULL)
+	m_iServiceID(COBRA_UNKNOWN),
+	m_iTargetID(COBRA_UNKNOWN),
+	m_TargetObject(NULL),
+	m_pBundle(NULL),
+	m_data(NULL),
+	m_strName("")
 {
 	
 }
 
-CIntent::CIntent( int action )
+CIntent::CIntent( cIntentAction action )
 	:m_iAction(action),
-	m_iServiceID(-1),
-	m_iTargetKey(-1),
-	m_TargetObject(NULL)
+	m_iServiceID(COBRA_UNKNOWN),
+	m_iTargetID(COBRA_UNKNOWN),
+	m_TargetObject(NULL),
+	m_pBundle(NULL),
+	m_data(NULL),
+	m_strName("")
 {
+}
 
+CIntent::CIntent( cIntentAction action,CCobraObject* obj )
+	:m_iAction(action),
+	m_TargetObject(obj),
+	m_iTargetID(COBRA_UNKNOWN),
+	m_iServiceID(COBRA_UNKNOWN),
+	m_pBundle(NULL),
+	m_data(NULL),
+	m_strName("")
+{
 }
 
 
-CIntent::CIntent( int action,int targetKey,int ServiceID,CCobraObject* obj )
+CIntent::CIntent( cIntentAction action,int targetId,int ServiceID,CCobraObject* obj )
 	:m_iAction(action),
-	m_iTargetKey(targetKey),
+	m_iTargetID(targetId),
 	m_iServiceID(ServiceID),
-	m_TargetObject(obj)
+	m_TargetObject(obj),
+	m_pBundle(NULL),
+	m_data(NULL)
 {
-
 }
 
+
+CIntent::CIntent( cIntentAction action,int targetId,int ServiceID )
+	:m_iAction(action),
+	m_iServiceID(ServiceID),
+	m_iTargetID(targetId),
+	m_TargetObject(NULL),
+	m_pBundle(NULL),
+	m_data(NULL),
+	m_strName("")
+{
+}
 
 CIntent::CIntent( CIntent& other )
 {
 	setIntentAction(other.getIntentAction());
 	setServiceID(other.getServiceID());
-	setTargetKey(other.getTargetKey());
+	setTargetID(other.getTargetID());
 	setTargetObj(other.getTargetObj());
+	setBundle(other.getBundle());
+	setData(other.getData());
 }
-
-
 
 CIntent& CIntent::operator=( CIntent& other )
 {
 	setIntentAction(other.getIntentAction());
 	setServiceID(other.getServiceID());
-	setTargetKey(other.getTargetKey());
+	setTargetID(other.getTargetID());
 	setTargetObj(other.getTargetObj());
+	setBundle(other.getBundle());
+	setData(other.getData());
 	return *this;
 }
 
-
 CIntent::~CIntent( void )
 {
-
-}
-
-void CIntent::setIntentAction(int var)
-{
-	m_iAction = var;
-}
-
-int CIntent::getIntentAction()
-{
-	return m_iAction;
-}
-
-void CIntent::setTargetKey(int var)
-{
-	m_iTargetKey = var;
-}
-
-int CIntent::getTargetKey()
-{
-	return m_iTargetKey;
-}
-
-void CIntent::setServiceID(int var)
-{
-	m_iServiceID = var;
-}
-
-int CIntent::getServiceID()
-{
-	return m_iServiceID;
-}
-
-void CIntent::setTargetObj(CCobraObject* var)
-{	
-	m_TargetObject = var;
-}
-
-CCobraObject* CIntent::getTargetObj()
-{
-	return m_TargetObject;
+	m_TargetObject = NULL;
+	m_data = NULL;
+	m_pBundle = NULL;
 }

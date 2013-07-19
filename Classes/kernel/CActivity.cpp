@@ -1,23 +1,16 @@
-
-//////////////////////////////////////////////////////////////////////////
-#include "CGeometry.h"
-#include "CBaseWidget.h"
-#include "CBaseContainer.h"
-#include "IUIEventDispatcher.h"
-#include "CGui.h"
-//////////////////////////////////////////////////////////////////////////
 #include "CActivity.h"
 #include "CResponse.h"
 #include "CObserver.h"
 #include "CIntent.h"
 #include "CService.h"
+#include "CHandler.h"
+#include "CGui.h"
+#include "CBundle.h"
 
 CActivity::CActivity( void )
 	:m_bisActive(false),
-	m_bHasObserver(false),
-	m_Observer(NULL),
-	m_Service(NULL),
-	m_pGui(NULL)
+	m_pGui(NULL),
+	m_iObserverId(COBRA_UNKNOWN)
 {
 	setObjType(COBRA_ACTIVITY);
 }
@@ -26,103 +19,118 @@ CActivity::~CActivity( void )
 {
 }
 
-void CActivity::setActive(bool var)
-{
-	m_bisActive = var;
-}
-
-bool CActivity::isActive()
-{
-	return m_bisActive;
-}
-
 void CActivity::onCreate()
 {
-}
-
-void CActivity::onFinish()
-{
-	COBRA_SAFE_DELETE(m_Service);
-	COBRA_SAFE_DELETE(m_Observer);
-	COBRA_SAFE_DELETE(m_pGui);
-}
-
-void CActivity::sethasObserver(bool var)
-{
-	m_bHasObserver = var;
-}
-
-bool CActivity::ishasObserver()
-{
-	return m_bHasObserver;
-}
-
-void CActivity::sethasService(bool var)
-{
-	m_bHasService = var;
-}
-
-bool CActivity::ishasService()
-{
-	return m_bHasService;
+	//do something
 }
 
 void CActivity::startActivity( CIntent* intent )
 {
-	if(intent == NULL) return;
-	if(ishasService() && getService()->isRunning())
-		getService()->onAcceptIntent(intent);
+	onDispatcher(intent);
 }
 
-void CActivity::setObserver(CObserver* var)
+void CActivity::startActivity( int activityId )
 {
-	if(m_Observer == var) return;
-	m_Observer = var;
-	m_bHasObserver = (var != NULL)?true:false;
-	if(m_Observer)
-		m_Observer->registerReceiver(this);
+	CIntent intent(INTENT_START_ACTIVITY,activityId,SERVICE_ACTIVITY);
+	onDispatcher(&intent);
 }
 
-CObserver* CActivity::getObserver()
+void CActivity::bindService( CIntent* service )
 {
-	return m_Observer;
+	onDispatcher(service);
 }
 
-void CActivity::setService(CService* var)
+void CActivity::unBindService( CIntent* service )
 {
-	if(m_Service == var) return;
-	m_Service = var;
-	m_bHasService = (var != NULL)?true:false;
-	if(m_Service)
-		m_Service->addCobraObject(this);
+	onDispatcher(service);
 }
 
-CService* CActivity::getService()
+void CActivity::loadGUI(CBundle* bundle)
 {
-	return m_Service;
+	CIntent intent(INTENT_LOAD_UI,getObjectID(),SERVICE_GUI,bundle);
+	onDispatcher(&intent);
 }
 
-void CActivity::setGUI(CGui* var)
+void CActivity::updateGUI( CBundle* bundle )
 {
-	m_pGui = var;
+	CIntent intent(INTENT_UPDATE_UI,getObjectID(),SERVICE_GUI,bundle);
+	onDispatcher(&intent);
 }
 
-CGui* CActivity::getGUI()
+void CActivity::setObserverId(int var)
 {
-	return m_pGui;
+	m_iObserverId = var;
+	COBRA_CHECK_UNKNOWN(m_iObserverId);
+	CIntent intent(INTENT_REGISTER_OBSERVER,m_iObserverId,SERVICE_ACTIVITY,this);
+	onDispatcher(&intent);
+}
+
+int CActivity::getObserverId()
+{
+	return m_iObserverId;
+}
+
+void CActivity::addController(const std::string& controlName)
+{
+	CIntent intent(INTENT_REGISTER_CONTROLLER,m_iObserverId,SERVICE_ACTIVITY);
+	intent.setTargetName(controlName);
+	onDispatcher(&intent);
+}
+
+void CActivity::releaseGUI()
+{
+	COBRA_CHECK_NULL(m_pGui);
+	m_pGui->release();
+	delete m_pGui;
+}
+
+void CActivity::getActivityByID( int activityID )
+{
+	CIntent intent(INTENT_GET_ACTIVITY,activityID,SERVICE_ACTIVITY);
+	onDispatcher(&intent);
 }
 
 //override
-void CActivity::onResponseHandler( CResponse* reponse )
+void CActivity::onResponseHandler( CResponse* response )
 {
-	if(reponse->getRespTarget() != this)
-		return;
-	if(ishasObserver())
-		getObserver()->onResponseHandler(reponse);
+	COBRA_RETURN_IF(response->getRespTarget() != this);
+	int respCode = response->getRespCode();
+	//override
 }
 
 void CActivity::onUpdate( void* pMsgHead )
 {
-	if(ishasObserver())
-		getObserver()->onHandlerDataStream(pMsgHead);
+	COBRA_CHECK_UNKNOWN(m_iObserverId);
+	CIntent intent(INTENT_UPDATE_DATASTREAM,m_iObserverId,SERVICE_ACTIVITY);
+	intent.setData(pMsgHead);
+	onDispatcher(&intent);
 }
+
+void CActivity::onDispatcher( CIntent* intent )
+{
+	COBRA_CHECK_NULL(intent);
+	CHandler::onHandler(intent);
+}
+
+void CActivity::onFinish()
+{
+	CIntent intent(INTENT_FINLISH_ACTIVITY,getObjectID(),SERVICE_ACTIVITY,this);
+	onDispatcher(&intent);
+}
+
+void CActivity::onDestory()
+{
+	//override 
+	//TODO: destory all object memory of activity
+}
+
+/************************************************************************/
+/* 
+	CActivityHandler
+*/
+void CActivity::CActivityHandler::handlerMessage( CMessage* msg )
+{
+	CHandler::handlerMessage(msg);
+}
+
+/************************************************************************/

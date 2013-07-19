@@ -2,8 +2,6 @@
 #define _CAPPLICATION_H_
 
 #include <string>
-#include <map>
-#include "CSingleton.h"
 #include "CPlatFormDefine.h"
 #include "CMarcos.h"
 
@@ -11,29 +9,23 @@ class CIntent;
 class CCobraObjectPool;
 class CService;
 
-class CApplication : public CSingleton<CApplication>
+
+class CApplication
 {
 public:
-	void onCreate();
-	void onFinish();
-	virtual void bindService(CIntent* intent);
-	virtual void unBindService(CIntent* intent);
-	CCobraObjectPool* getAppPool();
-	CService* getServiceById(int id);
-	bool isServiceRunnable(int serviceID);
-protected:
-	void loadCobraConfig(const char* xmlPath);
-	bool isInit();
-private:
-	friend class CSingleton<CApplication>;
 	CApplication(void);
-	~CApplication(void);
+	virtual ~CApplication(void);
+	static CApplication* shareApplication();
+public:
+	virtual void onCreate();
+	virtual void onFinish();
+	virtual void didEnterApplication();
+	virtual void didExitApplication();
+	virtual void onMainLoop();
+	bool isCreated();
 private:
-	/*
-		ÓÐ´ýÓÅ»¯
-	*/
-	CCobraObjectPool* m_CobraPool;
-	bool m_bInit;
+	static CApplication* m_Instance;
+	bool m_bIsCreated;
 };
 
 #endif //_CAPPLICATION_H_

@@ -1,64 +1,130 @@
 #include "CObserver.h"
 #include "CNetMarcos.h"
+
+#include "CIntent.h"
+#include "CHandler.h"
+#include "CMemoryCache.h"
 /************************************************************************/
 /* 
-	CCommand
+	CController
 */
-CCommand::CCommand( CCobraObject* target )
-	:m_pTarget(target)
+
+IMPLEMENT_DYNCREATE(CController);
+
+CController::CController()
+	:m_iObserverId(COBRA_UNKNOWN)
 {
 }
 
-CCommand::~CCommand( void )
+CController::~CController( void )
 {
-	COBRA_SAFE_DELETE(m_pTarget);
+	m_iObserverId = COBRA_UNKNOWN;
+}
+
+void CController::assign()
+{
+	COBRA_CHECK_UNKNOWN(m_iObserverId);
+	CIntent intent(INTENT_REGISTER_CONTROLLER,m_iObserverId,SERVICE_ACTIVITY,this);
+	CHandler::onHandler(&intent);
+}
+
+void CController::execute( void* data )
+{
+	//override
 }
 
 /************************************************************************/
-
 
 /************************************************************************/
 /*
 	CObserver
 */
 CObserver::CObserver( void )
+	:m_iReceiverId(COBRA_UNKNOWN)
 {
 }
 
 
 CObserver::~CObserver( void )
 {
+	m_iReceiverId = COBRA_UNKNOWN;
 }
 
-void CObserver::addCommand( CCommand* command )
+void CObserver::addController( CController* control )
 {
-	if(command == NULL) return;
-	m_pCommandSet[command->getObjectID()] = command;
+	COBRA_CHECK_NULL(control);
+	m_pControllerSet[control->getObjectID()] = control;
+	control->setObserverID(getObjectID());
 }
 
-void CObserver::removeCommand( CCommand* command )
+bool CObserver::containsController( int objId )
 {
-	if(command == NULL) return;
-	std::map<int,CCommand*>::iterator itor = m_pCommandSet.find(command->getObjectID());
-	if(itor != m_pCommandSet.end())
+	pControllItorSet itor = m_pControllerSet.find(objId);
+	return itor!= m_pControllerSet.end();
+}
+
+void CObserver::removeController( CController* control )
+{
+	COBRA_CHECK_NULL(control);
+	pControllItorSet itor = m_pControllerSet.find(control->getObjectID());
+	if(itor != m_pControllerSet.end())
 	{
-		m_pCommandSet.erase(itor);
+		COBRA_SAFE_DELETE(itor->second);
+		m_pControllerSet.erase(itor);
 	}
 }
 
-void CObserver::dispatchCommand( int cmdKey )
+void CObserver::dispatchController( void* data )
 {
-	if(m_pCommandSet.empty()) return;
-	std::map<int,CCommand*>::iterator itor = m_pCommandSet.find(cmdKey);
-	if(itor != m_pCommandSet.end())
-		itor->second->execute();
+	COBRA_RETURN_IF(m_pControllerSet.empty() == true);
+	SeqMsgHead* msg = (SeqMsgHead*) data;
+	COBRA_CHECK_NULL(msg);
+	pControllItorSet itor = m_pControllerSet.find(msg->usType);
+	if(itor != m_pControllerSet.end())
+		itor->second->execute(data);
+}
+
+bool CObserver::hasReceiver()
+{
+	return m_iReceiverId != COBRA_UNKNOWN;
 }
 
 void CObserver::onHandlerDataStream( void* pMsg )
 {
-	SeqMsgHead* msg = (SeqMsgHead*) pMsg;
-	dispatchCommand(msg->usType);
+	pushNetMsg(pMsg);
+}
+
+void CObserver::pushNetMsg( void* pMsg )
+{
+	m_pNetMsgList.push(pMsg);
+	if(hasReceiver())
+		flushNetMsg();
+}
+
+/*
+	when activity is active to flush net message
+*/
+void CObserver::restart()
+{
+	flushNetMsg();
+}
+
+void CObserver::flushNetMsg()
+{
+	COBRA_RETURN_IF(m_pControllerSet.empty() == true);
+	void* data = m_pNetMsgList.front();
+	m_pNetMsgList.pop();
+	dispatchController(data);
+	if(!m_pNetMsgList.empty())
+		flushNetMsg();
+}
+
+/*
+	validate net message queue length
+*/
+bool CObserver::hasNetMsgUnPost()
+{
+	return !m_pNetMsgList.empty();
 }
 
 /************************************************************************/
-

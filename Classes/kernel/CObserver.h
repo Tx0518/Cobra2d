@@ -2,23 +2,28 @@
 #define _COBSERVER_H_
 
 #include <map>
+#include <queue>
 #include "CCobraObject.h"
+#include "CPattern.h"
+#include "CDynObj.h"
 
 class CResponse;
 class CActivity;
 
 /*
-	CCommand
+	CController
 */
-class CCommand : public CCobraObject
+class CController : public CCobraObject,public CDynObj
 {
 public:
-	CCommand(CCobraObject* target);
-	virtual ~CCommand(void);
-	virtual void execute() = 0;
-protected:
-	CCobraObject* m_pTarget;
+	DECLARE_DYNCREATE(CController);
+	CController();
+	virtual ~CController(void);
+	virtual void execute(void* data);
+	void assign();
+	COBRA_CREATE_PROPERTY(int,m_iObserverId,ObserverID)
 };
+
 
 /*
 	CObserver
@@ -28,14 +33,28 @@ class CObserver : public CCobraObject
 public:
 	CObserver(void);
 	virtual ~CObserver(void);
-	virtual void onResponseHandler(CResponse* reponse) = 0;
-	virtual void registerReceiver(CActivity* activity) = 0;
-	virtual void addCommand(CCommand* command);
-	virtual void removeCommand(CCommand* command);
-	virtual void dispatchCommand(int cmdKey);
+	virtual void addController(CController* control);
+	virtual void removeController(CController* control);
+	virtual void dispatchController(void* data);
 	virtual void onHandlerDataStream(void* pMsg);
+	virtual void restart();
+ 	void flushNetMsg();
+	bool containsController(int objId);
+	bool hasNetMsgUnPost();
+
+	COBRA_CREATE_PROPERTY(int,m_iReceiverId,Receiver)
+	COBRA_CREATE_PROPERTY_BY_BOOL(m_bReceiverIsActive,ReceiverState)
+	
+	bool hasReceiver();
 protected:
-	std::map<int,CCommand*> m_pCommandSet;
+	void pushNetMsg(void* pMsg);
+protected:
+	std::map<int,CController*> m_pControllerSet;
+	typedef std::map<int,CController*>::iterator pControllItorSet;
+	//cache network msg in each observer
+	std::queue<void*> m_pNetMsgList;
+	typedef std::vector<void*>::iterator pNetMsgItorSet;
 };
+
 
 #endif //_COBSERVER_H_
