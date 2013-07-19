@@ -1,3 +1,4 @@
+#include "CGeometry.h"
 #include "CPropertyHelper.h"
 
 #include <cstdio>
@@ -5,7 +6,7 @@
 
 #include <cstdio>
 #include <sstream>
-
+#include "CStringTokenizer.h"
 #ifdef WIN32
 #define snprintf _snprintf
 #endif
@@ -146,6 +147,60 @@ std::string  CPropertyHelper::ulongToString(unsigned long val)
 	return std::string(buff);
 }
 
+CPoint CPropertyHelper::stringToPoint( const std::string& str )
+{
+	CPoint ret = PointZero;
+	vector<string> vcResult;
+	CTokenizer<CIsFromString>::Tokenize(vcResult, str, CIsFromString(","));
+	if (vcResult.size() >= 2)
+	{
+		ret.x = CPropertyHelper::stringToFloat(vcResult.at(0));
+		ret.y = CPropertyHelper::stringToFloat(vcResult.at(1));
+	}
+	else
+	{
+		;//do nothing
+	}
+	return ret;
+}
+
+CRectange CPropertyHelper::stringToRect( const std::string& str )
+{
+	CRectange ret = RectZero;
+	vector<string> vcResult;
+	CTokenizer<CIsFromString>::Tokenize(vcResult, str, CIsFromString(","));
+	if (vcResult.size() >= 4)
+	{
+		ret.origin.x = CPropertyHelper::stringToFloat(vcResult.at(0));
+		ret.origin.y = CPropertyHelper::stringToFloat(vcResult.at(1));
+		ret.size.width  = CPropertyHelper::stringToFloat(vcResult.at(2));
+		ret.size.height = CPropertyHelper::stringToFloat(vcResult.at(3));
+	}
+	else
+	{
+		;//do nothing
+	}
+	return ret;
+}
+
+CColor4B CPropertyHelper::stringToColor4B( const std::string& str )
+{
+	CColor4B ret = CreateCColor(255,255,255,255);
+	vector<string> vcResult;
+	CTokenizer<CIsFromString>::Tokenize(vcResult, str, CIsFromString(","));
+	if (vcResult.size() >= 4)
+	{
+		ret.r = CPropertyHelper::stringToFloat(vcResult.at(0));
+		ret.g = CPropertyHelper::stringToFloat(vcResult.at(1));
+		ret.b = CPropertyHelper::stringToFloat(vcResult.at(2));
+		ret.a = CPropertyHelper::stringToFloat(vcResult.at(3));
+	}
+	else
+	{
+		;//do nothing
+	}
+	return ret;
+}
 //CCPoint	CPropertyHelper::stringToPoint(const std::string& str)
 //{
 //	CCPoint val(0, 0) ;

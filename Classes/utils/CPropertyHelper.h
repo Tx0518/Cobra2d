@@ -2,6 +2,7 @@
 #define __PROPERTY_HELPER_H__
 #include <string>
 #include "CMarcos.h"
+#include "CGeometry.h"
 class CPropertyHelper
 {
 public:
@@ -16,8 +17,11 @@ public:
 	static  char    stringToChar(const std::string& str);
 	static  unsigned char    stringToUnsignedChar(const std::string& str);
 	static  long    stringToLong(const std::string& str);
-	//static	CCPoint	stringToPoint(const std::string& str);
-	//static	CCRect	stringToRect(const std::string& str);
+	//////////////////////////////////////////////////////////////////////////
+
+	static	CPoint	  stringToPoint(const std::string& str);
+	static	CRectange stringToRect(const std::string& str);
+	static  CColor4B  stringToColor4B(const std::string& str);
 	//////////////////////////////////////////////////////////////////////////
 	static std::string	floatToString(float val);
 	static std::string	floatToString1(float val);//保留1位小数
