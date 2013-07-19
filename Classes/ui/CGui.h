@@ -12,6 +12,9 @@ convert touch to ui event
 class CGui:public CBaseContainer,public IUIEventDispatcher,public CCTouchDelegate,public CCObject
 {
 public:
+	//////////////////////////////////////////////////////////////////////////
+	static const int MIN_PEN_MOVE_DISTANCE = 30;
+	//////////////////////////////////////////////////////////////////////////
 	CGui(int width,int height);
 	~CGui(void);
 	//////////////////////////////////////////////////////////////////////////
@@ -30,5 +33,6 @@ public:
 private:
 	CGraphic* m_pGraphic;
 	CCommandHandlerMgr* m_pCommandHandlerMgr;
+	CPoint    m_ptDown;
 };
 #endif //__C_GUI_H__

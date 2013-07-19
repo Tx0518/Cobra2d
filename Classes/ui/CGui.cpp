@@ -5,6 +5,7 @@ CGui::CGui(int width,int height)
 	m_pGraphic->setTargetPlane(width,height);
 	//////////////////////////////////////////////////////////////////////////
 	m_pCommandHandlerMgr =  CCommandHandlerMgr::instance();
+	this->setContentSize(CreateCSize(width,height));
 }
 
 
@@ -22,6 +23,8 @@ bool CGui::ccTouchBegan(CCTouch *pTouch, CCEvent *pEvent)
 	CPoint  touchLocation;
 	touchLocation.x = ptCococs2dx.x;
 	touchLocation.y = ptCococs2dx.y;
+	//save this point
+	m_ptDown = touchLocation;
 	touchLocation = this->converToNodeSpace(touchLocation);
 	if (this->getChildRect().containsPoint(touchLocation))
 	{
@@ -39,9 +42,13 @@ void CGui::ccTouchMoved(CCTouch *pTouch, CCEvent *pEvent)
 	CPoint  touchLocation;
 	touchLocation.x = ptCococs2dx.x;
 	touchLocation.y = ptCococs2dx.y;
-	CWidgetEvent event(this,CWidgetEvent::W_EVENT_PEN_MOVE);
-	event.setPt(touchLocation);
-	this->DispatchWidgetEvent(event);
+	if (coabs(m_ptDown.x - touchLocation.x) >= MIN_PEN_MOVE_DISTANCE
+		|| coabs(m_ptDown.y - touchLocation.y) >= MIN_PEN_MOVE_DISTANCE)
+	{
+		CWidgetEvent event(this,CWidgetEvent::W_EVENT_PEN_MOVE);
+		event.setPt(touchLocation);
+		this->DispatchWidgetEvent(event);
+	}
 }
 
 void CGui::ccTouchEnded(CCTouch *pTouch, CCEvent *pEvent)

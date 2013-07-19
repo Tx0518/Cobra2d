@@ -2,17 +2,15 @@
 #define _GAMEACTIVITY_H_
 
 #include "CActivity.h"
-#include "CSingleton.h"
 
-class GameActivity : public CActivity,public CSingleton<GameActivity>
+class GameActivity : public CActivity
 {
 public:
+	GameActivity(void);
+	virtual ~GameActivity(void);
 	virtual void onCreate();
 	virtual void onFinish();
-private:
-	GameActivity(void);
-	~GameActivity(void);
-	friend class CSingleton<GameActivity>;
+	virtual void onResponseHandler(CResponse* response);
 };
 
 #endif //_GAMEACTIVITY_H_

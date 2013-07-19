@@ -1,29 +1,12 @@
 #include "CCobraObject.h"
 
 CCobraObject::CCobraObject( void )
+	:m_iObjectID(COBRA_UNKNOWN),
+	m_iObjType(COBRA_OBJECT),
+	m_strComName("")
 {
 }
 
 CCobraObject::~CCobraObject( void )
 {
-}
-
-void CCobraObject::setObjectID(int var)
-{
-	m_iObjectID = var;
-}
-
-int CCobraObject::getObjectID()
-{
-	return m_iObjectID;
-}
-
-void CCobraObject::setObjType(int var)
-{
-	m_iObjType = var;
-}
-
-int CCobraObject::getObjType()
-{
-	return m_iObjType;
 }

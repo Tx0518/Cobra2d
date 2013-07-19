@@ -1,14 +1,18 @@
 #include "CMsgSubject.h"
 #include "CNetMarcos.h"
+#include "CMessage.h"
+
 
 CMsgSubject::CMsgSubject(void)
+	:m_bIsChange(false),
+	mHandler(NULL)
 {
-	m_bIsChange = false;
-	m_MsgBuf_vector.clear();
+	mHandler = new CMsgMsgSubjectHandler();
 }
 
 CMsgSubject::~CMsgSubject(void)
 {
+	COBRA_SAFE_DELETE(mHandler);
 }
 
 void CMsgSubject::OnMessage(const char* bytes, int nLen)
@@ -16,7 +20,13 @@ void CMsgSubject::OnMessage(const char* bytes, int nLen)
 // 	memset(m_msgBuffer, 0 , MAX_MESSAGE_BUF_LEN);
 // 	memcpy(m_msgBuffer, bytes, static_cast<size_t>(nLen));
 	m_bIsChange = true;
-	OnDispatchMessage((SeqMsgHead*)(bytes));
+	//m_MsgBuf_vector.push((SeqMsgHead*)(bytes));
+	SeqMsgHead* msgHead = (SeqMsgHead*)(bytes);
+	CMessage msg;
+	msg.setObj(msgHead);
+	msg.setMsgType(msgHead->usType);
+	mHandler->postMessage(&msg);
+	//OnDispatchMessage((SeqMsgHead*)(bytes));
 }
 
 void CMsgSubject::RegObserver(unsigned short type,  IMsgObserver* pObserver)
@@ -52,7 +62,6 @@ void CMsgSubject::DelObserver(unsigned short type, IMsgObserver* pObserver)
 	}
 }
 
-
 void CMsgSubject::OnDispatchMessage(SeqMsgHead* pMsgHead)
 {
 	if (!m_bIsChange)
@@ -62,7 +71,6 @@ void CMsgSubject::OnDispatchMessage(SeqMsgHead* pMsgHead)
 	if(it != m_msgMap.end())
 	{
 		std::vector<IMsgObserver*>& observers = (*it).second;
-		//IMessageObserverBase* pObserv;
 		size_t obSvrCount = observers.size();
 		for (unsigned short i = 0; i < obSvrCount; ++i) 
 		{
@@ -74,6 +82,16 @@ void CMsgSubject::OnDispatchMessage(SeqMsgHead* pMsgHead)
 	{
 		printf("ERROR usType%d usSize:%d\n", pMsgHead->usType, pMsgHead->usSize);
 	}
-
 	m_bIsChange	= false;
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+//CMsgMsgSubjectHandler UI thread handler message
+void CMsgMsgSubjectHandler::handlerMessage( CMessage* msg )
+{
+	CHandler::handlerMessage(msg);
+	COBRA_CHECK_NULL(msg);
+	COBRA_CHECK_NULL(msg->getObj());
+	CMsgSubjectShared->OnDispatchMessage((SeqMsgHead*)(msg->getObj()));
 }

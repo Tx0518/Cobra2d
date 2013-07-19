@@ -3,13 +3,25 @@
 
 #include "CSingleton.h"
 #include <map>
+#include <queue>
 #include <vector>
 #include <string>
 #include "CNetMarcos.h"
-
+#include "CHandler.h"
 
 class IMsgObserver;
 struct SeqMsgHead;
+
+//////////////////////////////////////////////////////////////////////////
+//CMsgMsgSubjectHandler
+class CMsgMsgSubjectHandler : public CHandler
+{
+public:
+	CMsgMsgSubjectHandler(void){}
+	virtual ~CMsgMsgSubjectHandler(void){}
+	void handlerMessage( CMessage* msg );
+};
+
 
 class CMsgSubject : public CSingleton<CMsgSubject>
 {
@@ -22,8 +34,7 @@ public:
 	virtual void OnMessage(const char* bytes, int nLen);
 	virtual void RegObserver(unsigned short type,  IMsgObserver* pObserver);
 	virtual void DelObserver(unsigned short type, IMsgObserver* pObserver);
-
-private:
+	
 	void OnDispatchMessage(SeqMsgHead* pMsgHead);
 
 private:
@@ -31,9 +42,11 @@ private:
 	bool m_DispatchFlg;
 	typedef std::vector<IMsgObserver*> vIMsgObserverBase;
 	std::map<unsigned short, vIMsgObserverBase> m_msgMap;
-	std::vector<SeqMsgHead*> m_MsgBuf_vector;
+	std::queue<SeqMsgHead*> m_MsgBuf_vector;
+	CMsgMsgSubjectHandler* mHandler;
 };
 
+#define CMsgSubjectShared CMsgSubject::getInstance()
 
 class IMessage
 {

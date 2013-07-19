@@ -3,11 +3,15 @@
 #include "CIntent.h"
 #include "CResponse.h"
 #include "CObserver.h"
+#include "CMemoryCache.h"
+#include "CActivityServiceProxy.h"
+
 
 CActivityService::CActivityService( void )
-	:m_iCurrentObjID(-1)
+	:m_iCurrentObjID(COBRA_UNKNOWN)
 {
-	this->setObjectID(ACTIVIE_SERVICE);
+	setObjectID(SERVICE_ACTIVITY);
+	setObjType(COBRA_SERVICES);
 }
 
 CActivityService::~CActivityService(void)
@@ -15,45 +19,39 @@ CActivityService::~CActivityService(void)
 	m_iCurrentObjID = -1;
 }
 
+
 void CActivityService::onStart()
 {
+	COBRA_RETURN_IF(m_bIsRunning == true);
+	addServiceProxy(INTENT_START_ACTIVITY,new CStartActivityProxy(this)); 
+	addServiceProxy(INTENT_FINLISH_ACTIVITY,new CFinishActivityProxy(this)); 
+	addServiceProxy(INTENT_BIND_SERVICE,new CBindServiceProxy(this)); 
+	addServiceProxy(INTENT_FETCH_DATA,new CFetchActivityProxy(this));
+	addServiceProxy(INTENT_REGISTER_CONTROLLER,new CRegisterControllerProxy(this));
+	addServiceProxy(INTENT_UPDATE_DATASTREAM,new CUpdateDataStreamControllerProxy(this));
+	addServiceProxy(INTENT_REGISTER_OBSERVER,new CRegisterObserverProxy(this));
+	CService::onStart();
 }
 
 void CActivityService::onAcceptIntent( CIntent* intent )
 {
-	if(intent == NULL) return;
-	int itnAction = intent->getIntentAction();
-	m_iCurrentObjID = intent->getTargetKey();
-	CResponse* resp = new CResponse();
-	if( itnAction ==  INTENT_START_ACTIVITY)
-	{	
-		CActivity* activity = new CActivity();
-		activity->onCreate();
-		resp->setRespCode(RESPONSE_CREATEACTIVITY_SUCCESS);
-		resp->setRespTarget(activity);
-	}
-	else if(itnAction == INTENT_FINLISH_ACTIVITY)
-	{
-		if(m_iCurrentObjID == -1) return;
-		CActivity* curActivity = dynamic_cast<CActivity*>(m_cobraPool.getCobraObjectById(m_iCurrentObjID));
-		if(curActivity == NULL) return;
-		curActivity->onFinish();
-	}
-	if(resp->getRespCode() == RESPONSE_UNKOWN) return;
-	onSynchResponse(resp);
+	COBRA_CHECK_NULL(intent);
+	m_iCurrentObjID = intent->getTargetID();
+	CService::onAcceptIntent(intent);
 }
 
 void CActivityService::onSynchResponse( CResponse* response )
 {
-	if(response->getRespTarget())
-	{
-		CActivity* activity = dynamic_cast<CActivity*>(response->getRespTarget());
-		activity->getObserver()->onResponseHandler(response);
-	}
+	CService::onSynchResponse(response);
 }
 
 void CActivityService::onFinish()
 {
-	
+	removeServiceProxy(INTENT_START_ACTIVITY);
+	removeServiceProxy(INTENT_FINLISH_ACTIVITY);
+	removeServiceProxy(INTENT_BIND_SERVICE);
+	removeServiceProxy(INTENT_FETCH_DATA);
+	removeServiceProxy(INTENT_REGISTER_CONTROLLER);
+	removeServiceProxy(INTENT_REGISTER_OBSERVER);
+	CService::onFinish();
 }
-

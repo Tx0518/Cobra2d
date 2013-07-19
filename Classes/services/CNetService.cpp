@@ -8,7 +8,8 @@ CNetService::CNetService( void )
 	:m_bActiveSeqIdFlg(false),
 	m_iSeqId(0)
 {
-
+	setObjectID(SERVICE_NET);
+	setObjType(COBRA_SERVICES);
 }
 
 CNetService::~CNetService( void )
@@ -28,7 +29,7 @@ void CNetService::onAcceptIntent( CIntent* intent )
 
 void CNetService::onSynchResponse( CResponse* response )
 {
-
+	CService::onSynchResponse(response);
 }
 
 void CNetService::onFinish()
@@ -48,7 +49,7 @@ bool CNetService::connect( const char* szServerIP, int wPort )
 	bool m_Connected = m_clientSocket.Connect(szServerIP, wPort);
 	if( m_Connected ) 
 	{
-		//Start Receiving News Thread
+		//Start News Thread of Receiving
 		m_SocketThread.Run(CExecutor::Bind(&CNetService::processNetMsg),this,NULL);
 	}
 	return m_Connected;

@@ -44,6 +44,9 @@ public:
 
 	void update(float delta);
 private:
+	void testRichTxt(void);
+	void testLinearLayout(void);
+	void testSimpleList(void);
 	CGui* m_pGUI;
 	MyCCommandHandler m_MyCmdHandler;
 };

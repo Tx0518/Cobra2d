@@ -4,6 +4,7 @@
 
 CDataCloudService::CDataCloudService( void )
 {
+	setObjType(COBRA_SERVICES);
 }
 
 CDataCloudService::~CDataCloudService( void )

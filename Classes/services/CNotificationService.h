@@ -2,19 +2,15 @@
 #define _CNOTIFICATIONSERVICE_H_
 
 #include "CService.h"
-#include "CSingleton.h"
 
-class CNotificationService : public CService,public CSingleton<CNotificationService>
+class CNotificationService : public CService
 {
 public:
+	CNotificationService(void);
+	~CNotificationService(void);
 	virtual void onAcceptIntent(CIntent* intent);
 	virtual void onSynchResponse(CResponse* response);
 	virtual void onFinish();
-
-private:
-	CNotificationService(void);
-	~CNotificationService(void);
-	friend class CSingleton<CNotificationService>;
 };
 
 #endif //_CNOTIFICATIONSERVICE_H_

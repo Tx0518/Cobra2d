@@ -7,8 +7,9 @@
 
 #define COBRA_TARGET_RENDEENQINE             COBRA_RENDEENQINE_COCOS2DX
 
+
 #if (COBRA_TARGET_RENDEENQINE == COBRA_RENDEENQINE_COCOS2DX)
-#define COBRA_LOG(condition,msg)		CCAssert(condition,msg)
+#define COBRA_LOG(format, ...)	cocos2d::CCLog(format, ##__VA_ARGS__)
 #endif
 
 

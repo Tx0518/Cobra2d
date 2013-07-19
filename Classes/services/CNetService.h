@@ -7,12 +7,28 @@
 #include "CThread.h"
 #include "CNetMarcos.h"
 
-#define SEQID()					CNetService::getInstance()->getSeqId();
-#define SENDMSG(msg)		CNetService::getInstance()->sendData(msg);
+#include "zthread/Thread.h"
 
-class CNetService : public CService,public CSingleton<CNetService>
+using namespace ZThread;
+
+// #define SEQID()					CNetService::getInstance()->getSeqId();
+// #define SENDMSG(msg)		CNetService::getInstance()->sendData(msg);
+
+class CSocketThread : public Runnable
 {
 public:
+	CSocketThread(void){}
+	virtual ~CSocketThread(void){}
+	virtual void run();
+};
+
+
+class CNetService : public CService
+{
+public:
+	CNetService(void);
+	virtual ~CNetService(void);
+
 	//注册Socket监听
 	void addEventListener(ISocket* value);
 	//Socket连接
@@ -32,17 +48,15 @@ public:
 	//获取SeqId序号
 	int getSeqId();
 	bool isActiveSeqIdFlg();
+
 public:
 	virtual void onStart();
 	virtual void onAcceptIntent(CIntent* intent);
 	virtual void onSynchResponse(CResponse* response);
 	virtual void onFinish();
 private:
-	friend class CSingleton<CNetService>;
-	CNetService(void);
-	~CNetService(void);
-private:
 	CThread m_SocketThread;
+	//CSocketThread m_SocketThread;
 	//验证SeqId;
 	int m_iSeqId;
 	//是否启用SeqId;

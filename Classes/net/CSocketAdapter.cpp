@@ -198,11 +198,11 @@ void CSocketAdapter::processNetMsg()
 			UINT16	dwCurMsgSize = pReceiveMsg->usSize;
 			//CCLOG("msgsize: %d  msgtype:%d", dwCurMsgSize,pReceiveMsg->usType);
 
-			if((int)dwCurMsgSize > nSize || dwCurMsgSize <= 0) {	// broken msg
+			if((int)dwCurMsgSize > nSize || dwCurMsgSize <= 0) 
+			{	
 				break;
 			}
 			CMsgSubject::getInstance()->OnMessage((const char*)pReceiveMsg, pReceiveMsg->usSize);
-			//CMessageSubject::instance().OnMessage((const char*)pReceiveMsg, pReceiveMsg->usSize);	
 			pbufMsg	+= dwCurMsgSize;
 			nSize	-= dwCurMsgSize;
 			if(nSize <= 0)
@@ -214,17 +214,13 @@ void CSocketAdapter::processNetMsg()
 #else
 	//	while (true) {
 	m_Socket.processNetMsg();
-
 	if(m_nCurDataStreamLen <= 0)
 		return;
-
-
 	SeqMsgHead* pReceiveMsg = (SeqMsgHead*)(m_dataStreamBuffer);
-
 	if(m_nCurDataStreamLen < pReceiveMsg->usSize)
 		return;
 
-	CMessageSubject::instance().OnMessage((const char*)pReceiveMsg, pReceiveMsg->usSize);
+	CMsgSubject::getInstance()->OnMessage((const char*)pReceiveMsg, pReceiveMsg->usSize);
 	popStreamFromBuffer(pReceiveMsg->usSize);
 	//	}
 #endif
